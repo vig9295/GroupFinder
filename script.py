@@ -73,7 +73,7 @@ def add_meeting_member(meetingID, memberID):
 
     with db.cursor() as cur:
         try:
-            cur.execute("INSERT INTO classes (meetingID, memberID) VALUES " +
+            cur.execute("INSERT INTO meeting_members (meetingID, memberID) VALUES " +
                                                 "(%s, %s)",
                                             (meetingID, memberID))
         except psycopg2.DatabaseError as db_error:
@@ -87,7 +87,7 @@ def add_class_member(classID, memberID):
 
     with db.cursor() as cur:
         try:
-            cur.execute("INSERT INTO classes (classID, memberID) VALUES " +
+            cur.execute("INSERT INTO class_members (classID, memberID) VALUES " +
                                                 "(%s, %s)",
                                             (classID, memberID))
         except psycopg2.DatabaseError as db_error:
@@ -96,27 +96,40 @@ def add_class_member(classID, memberID):
         else:
             db.commit()
 
+
+x = input("Enter the command")
 #Commands to be run for the demo
-add_member(1, "Uddhav", "IE", 4, "North Ave", "Evening Person")
-add_member(2, "John", "CS", 3, "North Ave", "Morning Person")
-add_member(3, "Diego", "CM", 3, "Center Street", "Morning Person")
+#Diego is the first student to enroll for classes, we add all classes that are not there
+# and enroll Diego in those classes
+if x == 1:
+    add_member(3, "Diego", "CM", 3, "Center Street", "Morning Person")
+    add_class(10, "CS 4510", "Prof. John")
+    add_class(20, "CS 3311", "Prof. Smith")
+    add_class(30, "CX 4000", "Dr. Heisenberg")
+    add_class_member(10, 3)
+    add_class_member(20, 3)
+    add_class_member(30, 3)
 
-add_class(10, "CS 4510", "Prof. John")
-add_class(20, "CS 3311", "Prof. Smith")
-add_class(30, "CX 4000", "Dr. Heisenberg")
+#Uddhav joins next and he enrolls for the first class
+if x == 2:
+    add_member(1, "Uddhav", "IE", 4, "North Ave", "Evening Person")
+    add_class_member(10, 1)
 
-add_class_member(10, 1)
-add_class_member(10, 2)
-add_class_member(10, 3)
-add_class_member(20, 2)
-add_class_member(20, 3)
-add_class_member(30, 3)
+#Similarly for John
+if x == 3:
+    add_member(2, "John", "CS", 3, "North Ave", "Morning Person")
+    add_class_member(10, 2)
+    add_class_member(20, 2)
 
-add_meeting(100, 10, "CS 4510 HW1 Discussion", "CULC", "Please be on time", 1)
-add_meeting_member(100, 1)
-add_meeting_member(100, 2)
-add_meeting_member(100, 3)
+#Uddhav creates a meeeting for CS 4510 and invites all the members to the meeting
+if x == 4:
+    add_meeting(100, 10, "CS 4510 HW1 Discussion", "CULC", "Please be on time", 1)
+    add_meeting_member(100, 1)
+    add_meeting_member(100, 2)
+    add_meeting_member(100, 3)
 
-add_meeting(101, 10, "CS 4510 HW2 Discussion", "North Ave", "Quick Revision", 2)
-add_meeting_member(101, 2)
-add_meeting_member(101, 1)
+#John creates this meeting, and only John and Uddhav are invited
+if x == 5:
+    add_meeting(101, 10, "CS 4510 HW2 Discussion", "North Ave", "Quick Revision", 2)
+    add_meeting_member(101, 2)
+    add_meeting_member(101, 1)
