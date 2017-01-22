@@ -15,5 +15,6 @@
     `brew install git`
     `brew install android-sdk`
 3. Update path to point to Android. Add this to `~/.bashrc`
-     `ANDROID_HOME=/usr/local/opt/android-sdk'
+     `ANDROID_HOME=/usr/local/opt/android-sdk`
 4. Install Android, type `android` to open android package manager, select the 10 packages and accept stuff, and install
+5. Install Node `brew install node`
