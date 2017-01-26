@@ -21,67 +21,48 @@ def connect():
         port=url.port)
     return conn
 
-#This function adds a meeting to list of meetings
-def add_meeting(meetingID, classID, name, location, details, organizerID):
-    db = connect()
+#--------------------
+#Helper SQL Functions
+#--------------------
 
-    stime = datetime.now()
-    etime = datetime.now()
+#Adds a member to the ID, this will contain the memberID, details and the password
+#Rating System not to be implemented, because it was suggested not to in the user
+#feedback
+def add_member(memberID, name, major, year, location, info, password):
+    db = connect()
 
     with db.cursor() as cur:
         try:
-            cur.execute("INSERT INTO meetings (meetingID, classID, name, stime, etime, location, details, organizerID) VALUES " +
-                                                "(%s, %s, %s, %s, %s, %s, %s, %s)",
-                                            (meetingID, classID, name, stime, etime, location, details, organizerID))
+            cur.execute("INSERT INTO members (memberID, name, major, year, location, info, password) VALUES " +
+                                                "(%s, %s, %s, %s, %s, %s, %s)",
+                                            (memberID, name, major, year, location, info, password))
         except psycopg2.DatabaseError as db_error:
             db.rollback()
             print str(db_error)
         else:
             db.commit()
 
+#checks if the username corresponds with a password
+#returns true if they do otherwise it returns false.
+def check_member(memberID, password):
+    pass
 
-def add_class(classID, name, prof):
+#Leader can be the professor, or the leader of the group
+def add_class(classID, name, leader, type):
     db = connect()
 
     with db.cursor() as cur:
         try:
-            cur.execute("INSERT INTO classes (classID, name, prof) VALUES " +
-                                                "(%s, %s, %s)",
-                                            (classID, name, prof))
+            cur.execute("INSERT INTO classes (classID, name, leader, type) VALUES " +
+                                                "(%s, %s, %s, %s)",
+                                            (classID, name, leader))
         except psycopg2.DatabaseError as db_error:
             db.rollback()
             print str(db_error)
         else:
             db.commit()
 
-def add_member(memberID, name, major, year, location, info):
-    db = connect()
-
-    with db.cursor() as cur:
-        try:
-            cur.execute("INSERT INTO members (memberID, name, major, year, location, info, sumratings, numratings) VALUES " +
-                                                "(%s, %s, %s, %s, %s, %s, 0, 0)",
-                                            (memberID, name, major, year, location, info))
-        except psycopg2.DatabaseError as db_error:
-            db.rollback()
-            print str(db_error)
-        else:
-            db.commit()
-
-def add_meeting_member(meetingID, memberID):
-    db = connect()
-
-    with db.cursor() as cur:
-        try:
-            cur.execute("INSERT INTO meeting_members (meetingID, memberID) VALUES " +
-                                                "(%s, %s)",
-                                            (meetingID, memberID))
-        except psycopg2.DatabaseError as db_error:
-            db.rollback()
-            print str(db_error)
-        else:
-            db.commit()
-
+#Adds a member to the classes
 def add_class_member(classID, memberID):
     db = connect()
 
@@ -96,40 +77,27 @@ def add_class_member(classID, memberID):
         else:
             db.commit()
 
+#returns the details for all other type classes.
+def get_all_other_classes():
+    db = connect()
 
-x = input("Enter the command")
-#Commands to be run for the demo
-#Diego is the first student to enroll for classes, we add all classes that are not there
-# and enroll Diego in those classes
-if x == 1:
-    add_member(3, "Diego", "CM", 3, "Center Street", "Morning Person")
-    add_class(10, "CS 4510", "Prof. John")
-    add_class(20, "CS 3311", "Prof. Smith")
-    add_class(30, "CX 4000", "Dr. Heisenberg")
-    add_class_member(10, 3)
-    add_class_member(20, 3)
-    add_class_member(30, 3)
+    with db.cursor() as cur:
+        try:
+            cur.execute("SELECT classID FROM classes WHERE type = \'others\'")
+        except psycopg2.DatabaseError as db_error:
+            db.rollback()
+            print str(db_error)
+        else:
+            db.commit()
+    #TODO
 
-#Uddhav joins next and he enrolls for the first class
-if x == 2:
-    add_member(1, "Uddhav", "IE", 4, "North Ave", "Evening Person")
-    add_class_member(10, 1)
+#returns the details of the as a list [classID, name, leader, type]
+def get_class_details(classID):
+    pass
 
-#Similarly for John
-if x == 3:
-    add_member(2, "John", "CS", 3, "North Ave", "Morning Person")
-    add_class_member(10, 2)
-    add_class_member(20, 2)
-
-#Uddhav creates a meeeting for CS 4510 and invites all the members to the meeting
-if x == 4:
-    add_meeting(100, 10, "CS 4510 HW1 Discussion", "CULC", "Please be on time", 1)
-    add_meeting_member(100, 1)
-    add_meeting_member(100, 2)
-    add_meeting_member(100, 3)
-
-#John creates this meeting, and only John and Uddhav are invited
-if x == 5:
-    add_meeting(101, 10, "CS 4510 HW2 Discussion", "North Ave", "Quick Revision", 2)
-    add_meeting_member(101, 2)
-    add_meeting_member(101, 1)
+#Finds a class based on the student
+#returns a tuple of two lists
+# (GTClassesList, otherClassesList)
+# ([classID, name, professor], [classID, name, leader])
+def find_classes(student):
+    pass
