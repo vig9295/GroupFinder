@@ -93,7 +93,18 @@ def get_all_other_classes():
 
 #returns the details of the as a list [classID, name, leader, type]
 def get_class_details(classID):
-    pass
+    db = connect()
+
+    with db.cursor() as cur:
+        try:
+            cur.execute("SELECT classID FROM classes")
+            details = cur.fetchone()
+        except psycopg2.DatabaseError as db_error:
+            db.rollback()
+            print str(db_error)
+        else:
+            db.commit()
+
 
 #Finds a class based on the student
 #returns a tuple of two lists
