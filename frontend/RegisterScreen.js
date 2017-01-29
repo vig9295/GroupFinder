@@ -23,6 +23,12 @@ export default class RegisterScreen extends Component {
   render() {
     return (
       <View style={styles.container}>
+        <Image 
+          style={{
+            marginBottom: 50
+          }}
+          source={require('./img/logo.png')}
+        />
         <TextInput
           style={{height: 50, width: width * .9}}
           placeholder="Username"
