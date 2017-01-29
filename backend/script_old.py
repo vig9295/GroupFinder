@@ -120,6 +120,19 @@ def add_class_member(classID, memberID):
         else:
             db.commit()
 
+def register_students(username,password):
+    db = connect
+
+    with db.cursor as cur:
+        try:
+            cur.execute("INSERT INTO students (username, password) VALUES" + "(%s, %s)", (username, password))
+        except psycopg2.DatabaseError as db_error:
+            db.rollback()
+            print str(db_error)
+        else:
+            db.commit()
+
+
 
 x = input("Enter the command")
 #Commands to be run for the demo
@@ -149,7 +162,7 @@ if x == 3:
 if x == 4:
     add_meeting(100, 10, "CS 4510 HW1 Discussion", "CULC", "Please be on time", 1)
     add_meeting_member(100, 1)
-    add_meeting_member(100, 2)
+    add_meeting_member(100, 2),
     add_meeting_member(100, 3)
 
 #John creates this meeting, and only John and Uddhav are invited
@@ -157,3 +170,6 @@ if x == 5:
     add_meeting(101, 10, "CS 4510 HW2 Discussion", "North Ave", "Quick Revision", 2)
     add_meeting_member(101, 2)
     add_meeting_member(101, 1)
+
+if x == 6:
+    register_students(Millun, hello123)
