@@ -29,7 +29,8 @@ export default class LoginScreen extends Component {
 
   fetchError() {
     var formData = new FormData();
-    formData.append('username', 'test');
+    formData.append('username', 'ubhagat3');
+    formData.append('password', 'udd1231');
     return fetch('http://128.61.62.145:5000/login', 
         {
           method: 'POST',
@@ -40,7 +41,7 @@ export default class LoginScreen extends Component {
       .then((responseJson) => {
         console.log("======================================================")
         console.log(responseJson)
-        this.setState({ error: responseJson['hello'] });
+        this.setState({ error: responseJson['message'] });
       })
       .catch((error) => {
         console.error(error);

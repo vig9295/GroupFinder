@@ -1,11 +1,9 @@
 from datetime import datetime
 import psycopg2
-
 import uuid
 import random
-
 import urlparse
-import psycopg2
+
 
 urlparse.uses_netloc.append("postgres")
 url = urlparse.urlparse("postgres://ehbxolgrxnzbxg:Q_wWyMAWJl2iEFGFaXmK7GyUxG@ec2-54-235-102-235.compute-1.amazonaws.com:5432/d99uk4hl0qtt4l")
@@ -44,8 +42,57 @@ def add_member(memberID, name, major, year, location, info, password):
 
 #checks if the username corresponds with a password
 #returns true if they do otherwise it returns false.
-def check_member(memberID, password):
-    pass
+def check_member(username, password):
+    db = connect()
+
+    with db.cursor() as cur:
+        try:
+            cur.execute("SELECT password FROM members WHERE memberID = %s", (username, ))
+            details = cur.fetchall()
+            if (len(details) == 1):
+
+                if (details[0][0] == password):
+                    print "LOGGED IN"
+                    return (
+                        { 
+                            'success': True,
+                            'message': 'Logged in successfully'
+                        }
+                    )  
+                else:
+                    print "GG"
+                    return (
+                        { 
+                            'success': False,
+                            'message': 'Password incorrect'
+                        }
+                    )  
+            else:
+                print "FUCK"
+                return (
+                    { 
+                        'success': False,
+                        'message': 'Username does not exist'
+                    }
+                )  
+        except psycopg2.DatabaseError as db_error:
+            db.rollback()
+            print str(db_error)
+            return (
+                { 
+                    'success': False,
+                    'message': 'Database error'
+                }
+            ) 
+
+
+#sample output
+'''
+{
+    success: t -> it works, false
+    message: user doesn't exist, incorrect password, logged in successfully, db_error.
+}
+'''
 
 #Leader can be the professor, or the leader of the group
 def add_class(classID, name, leader, typ):

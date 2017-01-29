@@ -1,5 +1,6 @@
 import os
 import json
+from script import check_member
 
 
 from flask import Flask, jsonify, request
@@ -16,11 +17,10 @@ def index():
 
 @app.route('/login', methods=['POST'])
 def login():
-	data = request.form['username']
+	username = request.form['username']
+	password = request.form['password']
 	return jsonify(
-		{
-		 	'hello': data
-		}
+		check_member(username, password)
 	)
 
 if __name__ == '__main__':
