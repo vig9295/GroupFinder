@@ -157,5 +157,33 @@ def get_class_details(classID):
 #returns a tuple of two lists
 # (GTClassesList, otherClassesList)
 # ([classID, name, professor], [classID, name, leader])
-def find_classes(student):
-    pass
+def find_classes(memberID):
+    print "HELLO", memberID
+    db = connect()
+    with db.cursor() as cur:
+        try:
+            cur.execute("SELECT classID, name, leader FROM classes WHERE memberID = %s", (memberID, ))
+            details = cur.fetchall()
+            stuff = []
+            for item in details:
+                stuff.append({
+                    'classID' : item[0],
+                    'name' : item[1],
+                    'leader': item[2]
+                })
+            return (
+                {
+                    'success': True,
+                    'message': 'successful',
+                    'data' : stuff
+                }
+            )
+        except psycopg2.DatabaseError as db_error:
+            db.rollback()
+            print str(db_error)
+            return (
+                {
+                    'success': False,
+                    'message': 'DB error'
+                }
+            )

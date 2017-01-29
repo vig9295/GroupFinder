@@ -12,6 +12,8 @@ import {
 
 import LoginScreen from './LoginScreen'
 import RegisterScreen from './RegisterScreen'
+import ClassListScreen from './ClassListScreen'
+
 
 export default class GroupFinder extends Component {
   
@@ -30,6 +32,8 @@ export default class GroupFinder extends Component {
         return <LoginScreen navigator={nav} />
       case 'RegisterScreen':
         return <RegisterScreen navigator={nav} />
+      case 'ClassListScreen':
+        return <ClassListScreen navigator={nav} />
       }
   }
 }

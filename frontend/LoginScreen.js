@@ -14,9 +14,11 @@ import {
   Image,
   View,
   Dimensions,
+  TouchableHighlight,
   Navigator,
-  TouchableHighlight
 } from 'react-native';
+
+import Cookie from 'react-native-cookie';
 
 var width = Dimensions.get('window').width;
 
@@ -24,14 +26,14 @@ export default class LoginScreen extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {error: 'ERROR BRUH'};
+    this.state = { error: '', username: '', password: '' };
   }
 
   fetchError() {
     var formData = new FormData();
-    formData.append('username', 'ubhagat3');
-    formData.append('password', 'udd1231');
-    return fetch('https://group-finder.herokuapp.com/login', 
+    formData.append('username', this.state.username);
+    formData.append('password', this.state.password);
+    return fetch('http://128.61.62.145:5000/login', 
         {
           method: 'POST',
           body: formData
@@ -39,9 +41,12 @@ export default class LoginScreen extends Component {
       )
       .then((response) => response.json())
       .then((responseJson) => {
-        console.log("======================================================")
-        console.log(responseJson)
-        this.setState({ error: responseJson['message'] });
+        if(!responseJson['success'])
+          this.setState({ error: responseJson['message'] });
+        else {
+          Cookie.set('hmm', 'username', this.state.username).then(() => console.log('success'));
+          this.goClassList();
+        }
       })
       .catch((error) => {
         console.error(error);
@@ -60,13 +65,13 @@ export default class LoginScreen extends Component {
         <TextInput
           style={{height: 50, width: width * .9}}
           placeholder="Username"
-          onChangeText={(text) => this.setState({text})}
+          onChangeText={(text) => this.setState({ username: text, error: '' })}
         />
         <TextInput
           style={{height: 50, width: width * .9, marginBottom: 50}}
           placeholder="Password"
           secureTextEntry={true}
-          onChangeText={(text) => this.setState({text})}
+          onChangeText={(text) => this.setState({ password: text, error: '' })}
         />
         <Button
           style={{fontSize: 40}}
@@ -84,6 +89,10 @@ export default class LoginScreen extends Component {
 
   goRegister() {
     this.props.navigator.push({ screen: 'RegisterScreen' });
+  }
+
+  goClassList() {
+    this.props.navigator.push({ screen: 'ClassListScreen' });
   }
 }
 

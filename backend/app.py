@@ -1,7 +1,6 @@
 import os
 import json
-from script import check_member
-
+import script
 
 from flask import Flask, jsonify, request
 
@@ -20,7 +19,14 @@ def login():
 	username = request.form['username']
 	password = request.form['password']
 	return jsonify(
-		check_member(username, password)
+		script.check_member(username, password)
+	)
+
+@app.route('/find_classes', methods=['POST'])
+def find_classes():
+	memberID = request.form['memberID']
+	return jsonify(
+		script.find_classes(memberID)
 	)
 
 if __name__ == '__main__':
