@@ -14,6 +14,7 @@ import LoginScreen from './LoginScreen'
 import RegisterScreen from './RegisterScreen'
 
 export default class GroupFinder extends Component {
+  
   render() {
     return (
       <Navigator

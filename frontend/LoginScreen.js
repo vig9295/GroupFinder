@@ -28,11 +28,19 @@ export default class LoginScreen extends Component {
   }
 
   fetchError() {
-    return fetch('https://group-finder.herokuapp.com/')
+    var formData = new FormData();
+    formData.append('username', 'test');
+    return fetch('http://128.61.62.145:5000/login', 
+        {
+          method: 'POST',
+          body: formData
+        }
+      )
       .then((response) => response.json())
       .then((responseJson) => {
-        console.log("HMMM");
-        this.setState({ error: responseJson.hello});
+        console.log("======================================================")
+        console.log(responseJson)
+        this.setState({ error: responseJson['hello'] });
       })
       .catch((error) => {
         console.error(error);
