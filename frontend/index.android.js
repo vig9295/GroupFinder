@@ -7,20 +7,29 @@
 import React, { Component } from 'react';
 import {
   AppRegistry,
-  StyleSheet,
-  Text,
-  View,
-  WebView
+  Navigator,
 } from 'react-native';
 
-class GroupFinder extends Component {
+import LoginScreen from './LoginScreen'
+import RegisterScreen from './RegisterScreen'
+
+export default class GroupFinder extends Component {
   render() {
     return (
-      <WebView
-        source={{uri: 'http://m.gatech.edu/w/schedule/c/'}}
-        style={{marginTop: 20}}
+      <Navigator
+        initialRoute={{screen: 'LoginScreen'}}
+        renderScene={(route, nav) => {return this.renderScene(route, nav)}}
       />
-    );
+    )
+  }
+
+  renderScene(route, nav) {
+    switch (route.screen) {
+      case 'LoginScreen':
+        return <LoginScreen navigator={nav} />
+      case 'RegisterScreen':
+        return <RegisterScreen navigator={nav} />
+      }
   }
 }
 
