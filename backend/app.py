@@ -10,9 +10,9 @@ app = Flask(__name__)
 @app.route('/', methods=['GET'])
 def index():
   return jsonify(
-    {
-      'hello': 'worlds'
-    }
+	{
+	  'hello': 'worlds'
+	}
   )
 '''
 
@@ -27,30 +27,56 @@ def login():
 @app.route('/create_member', methods=['POST'])
 def create_member():
 	memberID = request.form['memberID']
-    name = request.form['name']
-    password = request.form['password']
+	name = request.form['name']
+	password = request.form['password']
 	return jsonify(
 		script.add_member(memberID, name, password)
 	)
 
 @app.route('/create_class', methods=['POST'])
-def create_member():
+def create_class():
 	classID = request.form['classID']
-    name = request.form['name']
-    leader = request.form['leader']
+	name = request.form['name']
+	leader = request.form['leader']
 	return jsonify(
 		script.add_class(classID, name, leader, "GT")
 	)
 
+@app.route('/create_classes', methods=['POST'])
+def create_classes():
+	memberID = request.form['memberID']
+	classList = request.form['classList']
+	for items in classList:
+		classID = items['classID']
+		name = items['name']
+		leader = items['leader']
+		one = script.add_class(classID, name, leader, "GT")
+		two = add_class_member(classID, memberID)
+		if not (one['success'] and two['success']):
+			return jsonify(
+				{
+					'success': False,
+					'message': 'DB Error'
+				}
+			)
+	return jsonify(
+		{
+			'success': True,
+			'message': 'Classes added successfully'
+		}
+	)
+
+
+
 @app.route('/add_class_member', methods=['POST'])
 def add_class_member():
 	memberID = request.form['memberID']
-    classID = request.form['classID']
+	classID = request.form['classID']
 	return jsonify(
 		script.add_class_member(classID, memberID)
 	)
 
-@app.route('/add_class_member', methods=['POST'])
+@app.route('/find_classes', methods=['POST'])
 def find_classes():
 	memberID = request.form['memberID']
 	return jsonify(
@@ -59,7 +85,7 @@ def find_classes():
 
 @app.route('/get_class_details', methods=['POST'])
 def add_class_member():
-    classID = request.form['classID']
+	classID = request.form['classID']
 	return jsonify(
 		script.get_class_details(classID)
 	)
