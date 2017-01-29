@@ -1,1 +1,0 @@
-curl -v -H "Content-Type: application/json" -X POST -d '{ username :"your name"}' http://localhost:5000/login

@@ -31,7 +31,7 @@ export default class LoginScreen extends Component {
     var formData = new FormData();
     formData.append('username', 'ubhagat3');
     formData.append('password', 'udd1231');
-    return fetch('http://128.61.62.145:5000/login', 
+    return fetch('https://group-finder.herokuapp.com/login', 
         {
           method: 'POST',
           body: formData
