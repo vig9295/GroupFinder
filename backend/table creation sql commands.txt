@@ -1,5 +1,5 @@
-CREATE TABLE members(memberID TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, major TEXT NOT NULL, year TEXT NOT NULL, location TEXT NOT NULL, info TEXT NOT NULL, password TEXT NOT NULL);
+CREATE TABLE members(memberID TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, major TEXT, year TEXT, location TEXT, info TEXT , password TEXT NOT NULL);
 
-CREATE TABLE classes(classID INT PRIMARY KEY NOT NULL, name TEXT NOT NULL, leader TEXT NOT NULL, type TEXT NOT NULL);
+CREATE TABLE classes(classID TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, leader TEXT NOT NULL, type TEXT);
 
-CREATE TABLE class_members (classID INT NOT NULL, memberID INT NOT NULL, PRIMARY KEY(classID, memberID));
+CREATE TABLE class_members (classID TEXT NOT NULL, memberID TEXT NOT NULL, PRIMARY KEY(classID, memberID));
