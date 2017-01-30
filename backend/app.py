@@ -23,11 +23,12 @@ def login():
 		script.check_member(memberID, password)
 	)
 
-@app.route('/create_member', methods=['POST'])
-def create_member():
-	memberID = request.form['memberID']
-	name = request.form['name']
-	password = request.form['password']
+@app.route('/register', methods=['POST'])
+def register():
+	memberID = request.form.get('username')
+	name = request.form.get('name')
+	password = request.form.get('password')
+	print memberID, name, password
 	return jsonify(
 		script.add_member(memberID, name, password)
 	)
@@ -43,27 +44,30 @@ def create_class():
 
 @app.route('/create_classes', methods=['POST'])
 def create_classes():
-	memberID = request.form['memberID']
-	classList = request.form['classList']
-	for items in classList:
-		classID = items['classID']
-		name = items['name']
-		leader = items['leader']
-		one = script.add_class(classID, name, leader, "GT")
-		two = add_class_member(classID, memberID)
-		if not (one['success'] and two['success']):
-			return jsonify(
-				{
-					'success': False,
-					'message': 'DB Error'
-				}
-			)
-	return jsonify(
-		{
-			'success': True,
-			'message': 'Classes added successfully'
-		}
-	)
+    memberID = request.form.get('memberID')
+    data = request.form.get('data')
+    data_json = json.loads(data)['site_collection']
+    for items in data_json:
+        classID = items['id']
+        name = items['title']
+        leader = "Uddhav Bhagat"
+        term = items['props']['term']
+        if term == "SPRING 2017":
+            one = script.add_class(classID, name, leader, "GT")
+            two = script.add_class_member(classID, memberID)
+            if not two['success']:
+                return jsonify(
+                    {
+                        'success': False,
+                        'message': 'DB Error'
+                    }
+                )
+    return jsonify(
+        {
+            'success': True,
+            'message': 'Classes added successfully'
+        }
+    )
 
 
 
@@ -83,7 +87,7 @@ def find_classes():
 	)
 
 @app.route('/get_class_details', methods=['POST'])
-def add_class_member():
+def get_class_details():
 	classID = request.form['classID']
 	return jsonify(
 		script.get_class_details(classID)

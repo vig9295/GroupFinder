@@ -13,6 +13,9 @@ import {
 import LoginScreen from './LoginScreen'
 import RegisterScreen from './RegisterScreen'
 import ClassListScreen from './ClassListScreen'
+import GatechLoginScreen from './GatechLoginScreen'
+import ClassLoadingScreen from './ClassLoadingScreen'
+
 
 
 export default class GroupFinder extends Component {
@@ -34,6 +37,10 @@ export default class GroupFinder extends Component {
         return <RegisterScreen navigator={nav} />
       case 'ClassListScreen':
         return <ClassListScreen navigator={nav} />
+      case 'GatechLoginScreen':
+        return <GatechLoginScreen navigator={nav} />
+      case 'ClassLoadingScreen':
+        return <ClassLoadingScreen navigator={nav} />
       }
   }
 }

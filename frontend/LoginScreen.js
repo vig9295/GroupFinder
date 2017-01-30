@@ -29,11 +29,11 @@ export default class LoginScreen extends Component {
     this.state = { error: '', username: '', password: '' };
   }
 
-  fetchError() {
+  login() {
     var formData = new FormData();
     formData.append('username', this.state.username);
     formData.append('password', this.state.password);
-    return fetch('http://128.61.62.145:5000/login', 
+    return fetch('https://group-finder.herokuapp.com/login', 
         {
           method: 'POST',
           body: formData
@@ -44,7 +44,7 @@ export default class LoginScreen extends Component {
         if(!responseJson['success'])
           this.setState({ error: responseJson['message'] });
         else {
-          Cookie.set('hmm', 'username', this.state.username).then(() => console.log('success'));
+          Cookie.set('hmm', 'username', this.state.username).then(() => {});
           this.goClassList();
         }
       })
@@ -77,7 +77,7 @@ export default class LoginScreen extends Component {
           style={{fontSize: 40}}
           title="Login"
           color="#00695C"
-          onPress={this.fetchError.bind(this)}
+          onPress={this.login.bind(this)}
         />
         <Text> { this.state.error } </Text>
         <TouchableHighlight onPress={this.goRegister.bind(this)}>

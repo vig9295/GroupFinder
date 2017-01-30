@@ -43,11 +43,13 @@ export default class ClassListScreen extends Component {
       )
       .then((response) => response.json())
       .then((responseJson) => {
-        if(!responseJson['success']) {
-          const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-          this.state = {
-            data: ds.cloneWithRows(responseJson['data'])
-          };
+        if(responseJson['success']) {
+          if(responseJson['data'].length > 0) {
+            const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+            this.setState({
+              data: ds.cloneWithRows(responseJson['data'])
+            });
+          }
         }
         else {
           this.setState({ error: responseJson['message'] });
@@ -70,8 +72,8 @@ export default class ClassListScreen extends Component {
     } else {
       listData = (
         <ListView
-        dataSource={this.state.dataSource}
-        renderRow={(rowData) => <Text>{rowData}</Text>} />
+        dataSource={this.state.data}
+        renderRow={(rowData) => <Text>{rowData['name']}</Text>} />
       );
     }
     return (
@@ -82,7 +84,7 @@ export default class ClassListScreen extends Component {
   }
 
   goGatechLogin() {
-    //this.props.navigator.push({ screen: 'GatechLogin' });
+    this.props.navigator.push({ screen: 'GatechLoginScreen' });
   }
 }
 
@@ -105,3 +107,5 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
 });
+
+AppRegistry.registerComponent('ClassListScreen', () => ClassListScreen);
