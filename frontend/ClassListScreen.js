@@ -35,7 +35,7 @@ export default class ClassListScreen extends Component {
     .then((cookie) => {
       var formData = new FormData();
       formData.append('memberID', cookie);
-      fetch('http://128.61.62.145:5000/find_classes', 
+      fetch('https://group-finder.herokuapp.com/find_classes', 
         {
           method: 'POST',
           body: formData

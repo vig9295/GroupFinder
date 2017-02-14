@@ -5,7 +5,7 @@ import script
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
-'''
+
 @app.route('/', methods=['GET'])
 def index():
   return jsonify(
@@ -13,7 +13,6 @@ def index():
 	  'hello': 'worlds'
 	}
   )
-'''
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -58,7 +57,7 @@ def create_classes():
             if not two['success']:
                 return jsonify(
                     {
-                        'success': False,
+                        'success': True,
                         'message': 'DB Error'
                     }
                 )
