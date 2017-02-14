@@ -19,7 +19,7 @@ export default class GatechLoginScreen extends Component {
   }
 
   whenNavigationStateChanges(navState){
-    if(navState.url.includes('t-square.gatech.edu')) {
+    if(navState.url.includes('t-square.gatech.edu/portal')) {
       this.props.navigator.push({ screen: 'ClassLoadingScreen' });
     }
   }
