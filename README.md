@@ -17,4 +17,5 @@ Do not follow it completely and refer to instructions below as well.
 2. Install the Android 6.0 (Marshmallow) using the procedure described. Note that the menus have changed in the latest Android Studio. Click on this button to take you to the SDK Manager. http://imgur.com/Hoi5o1z
 3. Set ANDROID_HOME environment variables. Not that on your Mac the file will be called `~/.bash_profile`.
 4. Build gradle and open your android emulator.
-5. Run the command `react-native run-android` from within the frontend directory. This process will take a sometime however you will not need to keep running this as React Native updates on the fly.
+5. Run the command 'npm install react-native-cookie --save' and then 'react-native link react-native-cookie'.
+6. Run the command `react-native run-android` from within the frontend directory. This process will take a sometime however you will not need to keep running this as React Native updates on the fly.
