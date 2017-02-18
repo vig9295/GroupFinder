@@ -19,3 +19,13 @@ Do not follow it completely and refer to instructions below as well.
 4. Build gradle and open your android emulator.
 5. Run the command `npm install react-native-cookie --save` and then `react-native link react-native-cookie`.
 6. Run the command `react-native run-android` from within the frontend directory. This process will take a sometime however you will not need to keep running this as React Native updates on the fly.
+
+#React-Native Modules
+
+Putting React Native modules used here so everyone can access their documentation
+
+Navigation Bar
+https://www.npmjs.com/package/react-native-navigation-bar
+
+Date Picker
+https://github.com/xgfe/react-native-datepicker
