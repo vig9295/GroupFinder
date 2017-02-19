@@ -20,14 +20,15 @@ import {
 } from 'react-native';
 
 import Cookie from 'react-native-cookie';
+import NavigationBar from 'react-native-navigation-bar';
 
 var width = Dimensions.get('window').width;
 
-export default class ClassListScreen extends Component {
+export default class GroupListScreen extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { error: '', data: [] };
+    this.state = { error: '', data: []};
   }
 
   componentDidMount() {
@@ -71,13 +72,29 @@ export default class ClassListScreen extends Component {
       );
     } else {
       listData = (
-        <ListView
+        <ListView style={styles.classlist}
         dataSource={this.state.data}
-        renderRow={(rowData) => <Text>{rowData['name']}</Text>} />
+        renderRow={(rowData) => 
+          <TouchableHighlight style={styles.classitem} onPress={() => this.onClassPress(rowData)}>
+            <Text style={styles.classtext}>{rowData['name']}</Text>
+          </TouchableHighlight>
+        } />
       );
     }
-    return (
+    return (  
       <View style={styles.container}>
+        <NavigationBar 
+          style={styles.navbar}
+          title={'Class List'}
+          height={44}
+          titleColor={'#fff'}
+          backgroundColor={'#004D40'}
+          leftButtonTitle={'Log Out'}
+          leftButtonTitleColor={'#fff'}
+          rightButtonTitle={'Add'}
+          rightButtonTitleColor={'#fff'}
+          onRightButtonPress={this.onAddClass.bind(this)}
+        />
         { listData } 
       </View>
     );
@@ -85,6 +102,19 @@ export default class ClassListScreen extends Component {
 
   goGatechLogin() {
     this.props.navigator.push({ screen: 'GatechLoginScreen' });
+  }
+
+  onClassPress(classObj) {
+    this.props.navigator.push({ 
+      screen: 'GroupListScreen',
+      passProps: {
+        classObj: classObj
+      } 
+    });
+  }
+
+  onAddClass() {
+    console.log('add a class? wut?');
   }
 }
 
@@ -94,6 +124,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
+  },
+  classlist: {
+    marginTop: 44
+  },
+  classitem: {
+    height: 75,
+    width: width,
+    borderBottomWidth: 3,
+    borderColor: '#E0F2F1',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white'
+  },
+  classtext: {
+    fontSize: 25
+  },
+  navbar: {
+    //and here's where I would put my styles
+    //  iF I HAD ONE
   },
   welcome: {
     fontSize: 20,
