@@ -3,3 +3,18 @@ CREATE TABLE members(memberID TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, maj
 CREATE TABLE classes(classID TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, leader TEXT NOT NULL, type TEXT);
 
 CREATE TABLE class_members (classID TEXT NOT NULL, memberID TEXT NOT NULL, PRIMARY KEY(classID, memberID));
+
+CREATE TABLE meetings (meetingID SERIAL PRIMARY KEY, classID TEXT NOT NULL, title TEXT NOT NULL, location TEXT NOT NULL, starttime TEXT NOT NULL, description TEXT NOT NULL);
+
+CREATE TABLE meeting_members (meetingID TEXT NOT NULL, memberID TEXT NOT NULL, PRIMARY KEY(meetingID, memberID));
+
+
+functions to check
+  get_class_meetings
+  create_meetings
+  edit_meeting_location
+  edit_meeting_title
+  edit_meeting_description
+  edit_meeting_date
+  add_meeting_members
+  get_meeting_members

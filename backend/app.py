@@ -92,6 +92,75 @@ def get_class_details():
 		script.get_class_details(classID)
 	)
 
+@app.route('/class/<string:classID>/members', methods=['GET'])
+def get_class_members(classID):
+    return jsonify(
+        script.get_class_members(classID)
+    )
+
+
+@app.route('/class/<string:classID>/meetings', methods=['GET'])
+def get_class_meetings(classID):
+    return jsonify(
+        script.get_class_meetings(classID)
+    )
+
+@app.route('/create_meetings', methods=['POST'])
+def create_meetings():
+    classID = request.form['classID']
+    title = request.form['title']
+    location = request.form['location']
+    description = request.form['description']
+    dateJson = json.loads(request.form['date'])
+    return jsonify(
+        script.create_meetings(classID, title, location, description, dateJson)
+    )
+
+@app.route('/edit_meeting_location', methods=['POST'])
+def edit_meetings_location():
+    meetingID = request.form['meetingID']
+    location = request.form['location']
+    return jsonify(
+        script.edit_meeting_location(meetingID, location)
+    )
+
+@app.route('/edit_meeting_title', methods=['POST'])
+def edit_meeting_title():
+    meetingID = request.form['meetingID']
+    title = request.form['title']
+    return jsonify(
+        script.edit_meeting_title(meetingID, title)
+    )
+
+@app.route('/edit_meeting_description', methods=['POST'])
+def edit_meeting_description():
+    meetingID = request.form['meetingID']
+    description = request.form['description']
+    return jsonify(
+        script.edit_meeting_description(meetingID, description)
+    )
+
+@app.route('/edit_meeting_date', methods=['POST'])
+def edit_meeting_date():
+    meetingID = request.form['meetingID']
+    dateJson = json.loads(request.form['date'])
+    return jsonify(
+        script.edit_meeting_date(meetingID, dateJson)
+    )
+
+@app.route('/add_meeting_members', methods=['POST'])
+def add_meeting_members():
+    meetingID = request.form['meetingID']
+	memberID = request.form['memberID']
+    return jsonify(
+        script.add_meeting_members(meetingID, memberID)
+    )
+
+@app.route('/<string:meetingID>/get_meeting_members', methods=['GET'])
+def get_meeting_members(meetingID):
+    return jsonify(
+        script.get_meeting_members(meetingID)
+    )
 
 if __name__ == '__main__':
   port = int(os.environ.get('PORT', 5000))
