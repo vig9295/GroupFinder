@@ -25,7 +25,7 @@ export default class ClassLoadingScreen extends Component {
       var hmm = Cookie.get('hmm', 'username')
       .then((cookie) => {
         formData.append('memberID', cookie);
-        fetch('http://128.61.61.119:5000/create_classes', 
+        fetch('https://group-finder.herokuapp.com/create_classes', 
           {
             method: 'POST',
             body: formData

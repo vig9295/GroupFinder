@@ -34,7 +34,7 @@ export default class MeetingListScreen extends Component {
   componentDidMount() {
     var formData = new FormData();
     formData.append('memberID', this.props.username);
-    url = 'http://128.61.61.119:5000/class/' + this.props.classObj.classID + '/meetings';
+    url = 'https://group-finder.herokuapp.com/class/' + this.props.classObj.classID + '/meetings';
     fetch(url, {
       method: 'POST',
       body: formData
