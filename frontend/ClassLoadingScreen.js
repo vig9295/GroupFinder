@@ -15,7 +15,8 @@ import Cookie from 'react-native-cookie';
 
 export default class ClassLoadingScreen extends Component {
   
-  componentWillMount() {
+  constructor(props) {
+    super(props);
     var formData = new FormData();
     fetch('https://t-square.gatech.edu/direct/site.json')
     .then((response) => response.json())
@@ -24,7 +25,7 @@ export default class ClassLoadingScreen extends Component {
       var hmm = Cookie.get('hmm', 'username')
       .then((cookie) => {
         formData.append('memberID', cookie);
-        fetch('https://group-finder.herokuapp.com/create_classes', 
+        fetch('http://128.61.61.119:5000/create_classes', 
           {
             method: 'POST',
             body: formData
@@ -34,12 +35,11 @@ export default class ClassLoadingScreen extends Component {
         .then((responseJson) => {
           console.log(responseJson)
           if(responseJson['success']) {
-            console.log("HELLO")
             this.props.navigator.push({ screen: 'ClassListScreen' });
           }
         })
         .catch((error) => {
-          console.log("DUUUUDE", error);
+          console.error(error);
         });
       });
     })

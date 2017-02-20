@@ -289,21 +289,15 @@ def get_class_meetings(classID):
 			details = cur.fetchall()
 			stuff = []
 			for item in details:
-				date, time = item[4].split(' ')
-				year, month, day = date.split('-')
-				hour, minute = time.split(':')
+				# date, time = item[4].split(' ')
+				# year, month, day = date.split('-')
+				# hour, minute = time.split(':')
 				stuff.append({
 					'classID' : item[0],
 					'title' : item[1],
 					'location' : item[2],
 					'description' : item[3],
-					'dateJson': {
-						'year': year,
-						'month': month,
-						'day': day,
-						'hour': hour,
-						'minute': minute,
-					}
+					'dateJson': item[4]
 				})
 			return (
 				{
@@ -322,15 +316,14 @@ def get_class_meetings(classID):
 				}
 			)
 
-def create_meetings(classID, title, location, description, dateJson):
+def create_meetings(meetingID, classID, title, location, description, dateJson, memberID):
 	db = connect()
-
-	timestr = str(dateJson['year']) + '-' + str(dateJson['month']) + '-' + str(dateJson['day']) + ' ' + str(dateJson['hour']) + ':' + str(dateJson['minute'])
+	#timestr = str(dateJson['year']) + '-' + str(dateJson['month']) + '-' + str(dateJson['day']) + ' ' + str(dateJson['hour']) + ':' + str(dateJson['minute'])
 	with db.cursor() as cur:
 		try:
-			cur.execute("INSERT INTO meetings (classID, title, location, description, starttime) VALUES " +
-												"(%s, %s, %s, %s, %s)",
-											(classID, title, location, description, timestr))
+			cur.execute("INSERT INTO meetings (meetingID, classID, title, location, description, starttime, memberID) VALUES " +
+												"(%s, %s, %s, %s, %s, %s, %s)",
+											(meetingID, classID, title, location, description, dateJson, memberID))
 		except psycopg2.DatabaseError as db_error:
 			db.rollback()
 			print str(db_error)
@@ -426,11 +419,11 @@ def edit_meeting_description(meetingID, description):
 
 def edit_meeting_date(meetingID, dateJson):
 	db = connect()
-	timestr = str(dateJson['year']) + '-' + str(dateJson['month']) + '-' + str(dateJson['day']) + ' ' + str(dateJson['hour']) + ':' + str(dateJson['minute'])
+	#timestr = str(dateJson['year']) + '-' + str(dateJson['month']) + '-' + str(dateJson['day']) + ' ' + str(dateJson['hour']) + ':' + str(dateJson['minute'])
 	with db.cursor() as cur:
 		try:
 			cur.execute("UPDATE meetings SET starttime = %s WHERE meetingID = %s",
-											(timestr, meetingID))
+											(dateJson, meetingID))
 		except psycopg2.DatabaseError as db_error:
 			db.rollback()
 			print str(db_error)
@@ -508,49 +501,49 @@ def get_meeting_members(meetingID):
 
 
 
-print add_member('ubhagat3', 'Uddhav', 'udd123')
-print check_member('ubhagat3', 'udd123')
-print check_member('ubhagat31', 'udd123')
-print check_member('ubhagat3', 'udd1231')
-print add_class('123', "CS 1331", "Omojokun", "gt")
-print add_class('123', "CS 2340", "Waters", "gt")
-print add_class('345', "CS 2340", "Waters", "gt")
-print add_class('456', "CS 4641", "Isabell", "gt")
-print add_class('111', "basket weaving", "Mermaid", "other")
-print add_class_member("123", 'ubhagat3')
-print add_class_member('111', 'ubhagat3')
-print add_class_member('111', 'matluri3')
-print add_class_member('000', 'ubhagat3')
-print add_class_member('567', 'matluri3')
-print get_class_details('123')
-print get_class_details('111')
-print get_class_details('000')
-print find_classes('ubhagat3')
-print find_classes('matluri3')
+# print add_member('ubhagat3', 'Uddhav', 'udd123')
+# print check_member('ubhagat3', 'udd123')
+# print check_member('ubhagat31', 'udd123')
+# print check_member('ubhagat3', 'udd1231')
+# print add_class('123', "CS 1331", "Omojokun", "gt")
+# print add_class('123', "CS 2340", "Waters", "gt")
+# print add_class('345', "CS 2340", "Waters", "gt")
+# print add_class('456', "CS 4641", "Isabell", "gt")
+# print add_class('111', "basket weaving", "Mermaid", "other")
+# print add_class_member("123", 'ubhagat3')
+# print add_class_member('111', 'ubhagat3')
+# print add_class_member('111', 'matluri3')
+# print add_class_member('000', 'ubhagat3')
+# print add_class_member('567', 'matluri3')
+# print get_class_details('123')
+# print get_class_details('111')
+# print get_class_details('000')
+# print find_classes('ubhagat3')
+# print find_classes('matluri3')
 
 
-print get_class_members('111')
-print get_class_members('123')
-print get_class_members('000')
-print get_class_meetings('111')
-print get_class_meetings('123')
-print get_class_meetings('000')
-dates = {
-	"year": 2016,
-	"month": 8,
-	"day": 12,
-	"hour": 12,
-	"minute": 30,
-}
-print create_meetings('111', 'test meeting', 'NAN', 'testing', dates)
-print create_meetings('123', 'test meeting2', 'NAN', 'testing', dates)
-print create_meetings('000', 'test meeting', 'NAN', 'testing', dates)
-print edit_meeting_location('1', "NAS")
-print edit_meeting_title('1', "new title")
-print edit_meeting_description('1', 'testing again')
-print edit_meeting_date('1', dates)
-print add_meeting_members('1', 'udd123')
-print get_meeting_members('1')
+# print get_class_members('111')
+# print get_class_members('123')
+# print get_class_members('000')
+# print get_class_meetings('111')
+# print get_class_meetings('123')
+# print get_class_meetings('000')
+# dates = {
+# 	"year": 2016,
+# 	"month": 8,
+# 	"day": 12,
+# 	"hour": 12,
+# 	"minute": 30,
+# }
+# print create_meetings('111', 'test meeting', 'NAN', 'testing', dates)
+# print create_meetings('123', 'test meeting2', 'NAN', 'testing', dates)
+# print create_meetings('000', 'test meeting', 'NAN', 'testing', dates)
+# print edit_meeting_location('1', "NAS")
+# print edit_meeting_title('1', "new title")
+# print edit_meeting_description('1', 'testing again')
+# print edit_meeting_date('1', dates)
+# print add_meeting_members('1', 'udd123')
+# print get_meeting_members('1')
 
 #TODO Might have to change if stuff needs to be added as per "other classes"
 #Finds a class based on the student

@@ -1,6 +1,11 @@
 import os
 import json
 import script
+import string
+import random
+
+def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
 
 from flask import Flask, jsonify, request
 
@@ -49,15 +54,15 @@ def create_classes():
     for items in data_json:
         classID = items['id']
         name = items['title']
-        leader = "Uddhav Bhagat"
-        term = items['props']['term']
+        leader = "Uddhav Bhagat"        
+        term = items.get('props').get('term')
         if term == "SPRING 2017":
             one = script.add_class(classID, name, leader, "GT")
             two = script.add_class_member(classID, memberID)
             if not two['success']:
                 return jsonify(
                     {
-                        'success': True,
+                        'success': False,
                         'message': 'DB Error'
                     }
                 )
@@ -99,7 +104,7 @@ def get_class_members(classID):
     )
 
 
-@app.route('/class/<string:classID>/meetings', methods=['GET'])
+@app.route('/class/<string:classID>/meetings', methods=['POST'])
 def get_class_meetings(classID):
     return jsonify(
         script.get_class_meetings(classID)
@@ -107,13 +112,37 @@ def get_class_meetings(classID):
 
 @app.route('/create_meetings', methods=['POST'])
 def create_meetings():
+    meetingID = id_generator(32)
     classID = request.form['classID']
     title = request.form['title']
     location = request.form['location']
     description = request.form['description']
-    dateJson = json.loads(request.form['date'])
+    dateJson = request.form['date']
+    ownerID = request.form['owner']
+    memberList = json.loads(request.form['memberList'])
+    one = script.create_meetings(meetingID, classID, title, location, description, dateJson, ownerID)
+    if not one['success']:
+        return jsonify(
+            {
+                'success': False,
+                'message': 'DB Error11'
+            }
+        )
+    for item in memberList:
+        two = script.add_meeting_members(meetingID, item)
+        if not two['success']:
+            return jsonify(
+                {
+                    'success': False,
+                    'message': 'DB Error12'
+                }
+            )
+
     return jsonify(
-        script.create_meetings(classID, title, location, description, dateJson)
+        {
+            'success': True,
+            'message': 'Classes added successfully'
+        }
     )
 
 @app.route('/edit_meeting_location', methods=['POST'])
@@ -151,7 +180,7 @@ def edit_meeting_date():
 @app.route('/add_meeting_members', methods=['POST'])
 def add_meeting_members():
     meetingID = request.form['meetingID']
-	memberID = request.form['memberID']
+    memberID = request.form['memberID']
     return jsonify(
         script.add_meeting_members(meetingID, memberID)
     )

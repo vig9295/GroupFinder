@@ -8,18 +8,30 @@ import {
 } from 'react-native';
 
 export default class GatechLoginScreen extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { shouldRender: true };
+  } 
+
   render() {
-    return (
-      <WebView
-        source={{uri: 'https://login.gatech.edu/cas/login?service=https%3A%2F%2Ft-square.gatech.edu%2Fsakai-login-tool%2Fcontainer'}}
-        style={{marginTop: 20}}
-        onNavigationStateChange={this.whenNavigationStateChanges.bind(this)}
-      />
-    );
+    if (this.state.shouldRender) {
+      return (
+        <WebView
+          source={{uri: 'https://login.gatech.edu/cas/login?service=https%3A%2F%2Ft-square.gatech.edu%2Fsakai-login-tool%2Fcontainer'}}
+          style={{marginTop: 20}}
+          onNavigationStateChange={this.whenNavigationStateChanges.bind(this)}
+        />
+      );
+    } else {
+      return ( 
+        <View />
+      );
+    }
   }
 
   whenNavigationStateChanges(navState){
     if(navState.url.includes('t-square.gatech.edu/portal')) {
+      this.setState({ shouldRender: false });
       this.props.navigator.push({ screen: 'ClassLoadingScreen' });
     }
   }

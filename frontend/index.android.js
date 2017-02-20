@@ -13,10 +13,10 @@ import {
 import LoginScreen from './LoginScreen'
 import RegisterScreen from './RegisterScreen'
 import ClassListScreen from './ClassListScreen'
-import GroupListScreen from './GroupListScreen'
+import MeetingListScreen from './MeetingListScreen'
 import GatechLoginScreen from './GatechLoginScreen'
 import ClassLoadingScreen from './ClassLoadingScreen'
-import CreateGroupScreen from './CreateGroupScreen'
+import CreateMeetingScreen from './CreateMeetingScreen'
 import EditGroupScreen from './EditGroupScreen'
 
 export default class GroupFinder extends Component {
@@ -24,7 +24,7 @@ export default class GroupFinder extends Component {
   render() {
     return (
       <Navigator
-        initialRoute={{screen: 'ClassListScreen'}}
+        initialRoute={{screen: 'LoginScreen'}}
         renderScene={(route, nav) => {return this.renderScene(route, nav)}}
       />
     )
@@ -38,14 +38,14 @@ export default class GroupFinder extends Component {
         return <RegisterScreen navigator={nav} />
       case 'ClassListScreen':
         return <ClassListScreen navigator={nav} />
-      case 'GroupListScreen':
-        return <GroupListScreen navigator={nav} passProps={route.passProps}/>
+      case 'MeetingListScreen':
+        return <MeetingListScreen navigator={nav} {...route.passProps}/>
       case 'GatechLoginScreen':
         return <GatechLoginScreen navigator={nav} />
       case 'ClassLoadingScreen':
         return <ClassLoadingScreen navigator={nav} />
-      case 'CreateGroupScreen':
-        return <CreateGroupScreen navigator={nav} />
+      case 'CreateMeetingScreen':
+        return <CreateMeetingScreen navigator={nav} {...route.passProps}/>
       case 'EditGroupScreen':
         return <EditGroupScreen navigator={nav} />
       }

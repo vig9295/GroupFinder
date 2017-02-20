@@ -24,48 +24,46 @@ import NavigationBar from 'react-native-navigation-bar';
 
 var width = Dimensions.get('window').width;
 
-export default class ClassListScreen extends Component {
+export default class MeetingListScreen extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { error: '', data: [], username: ''};
-    Cookie.get('hmm', 'username')
-    .then((cookie) => {
-      var formData = new FormData();
-      formData.append('memberID', cookie);
-      this.setState({ username: cookie});
-      fetch('https://group-finder.herokuapp.com/find_classes', 
-        {
-          method: 'POST',
-          body: formData
+    this.state = { error: '', data: [] };
+  }
+
+  componentDidMount() {
+    var formData = new FormData();
+    formData.append('memberID', this.props.username);
+    url = 'http://128.61.61.119:5000/class/' + this.props.classObj.classID + '/meetings';
+    fetch(url, {
+      method: 'POST',
+      body: formData
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+      if(responseJson['success']) {
+        if(responseJson['data'].length > 0) {
+          const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+          this.setState({
+            data: ds.cloneWithRows(responseJson['data'])
+          });
         }
-      )
-      .then((response) => response.json())
-      .then((responseJson) => {
-        if(responseJson['success']) {
-          if(responseJson['data'].length > 0) {
-            const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-            this.setState({
-              data: ds.cloneWithRows(responseJson['data'])
-            });
-          }
-        }
-        else {
-          this.setState({ error: responseJson['message'] });
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      })
+      }
+      else {
+        this.setState({ error: responseJson['message'] });
+      }
+    })
+    .catch((error) => {
+      console.error(error);
     });
-  }  
+  }
 
   render() { 
     let listData = null
     if (this.state.data.length == 0) {
       listData = (
-        <TouchableHighlight onPress={this.goGatechLogin.bind(this)}>
-          <Text style={styles.instructions}>You have no classes. Please login to you GT account to sync your classes.</Text>
+        <TouchableHighlight onPress={this.onAddGroup.bind(this)}>
+          <Text style={styles.instructions}>You have no groups for this class. Press here to make one!</Text>
         </TouchableHighlight>
       );
     } else {
@@ -73,47 +71,49 @@ export default class ClassListScreen extends Component {
         <ListView style={styles.classlist}
         dataSource={this.state.data}
         renderRow={(rowData) => 
-          <TouchableHighlight style={styles.classitem} onPress={() => this.onClassPress(rowData)}>
-            <Text style={styles.classtext}>{rowData['name']}</Text>
+          <TouchableHighlight style={styles.classitem} >
+            <Text style={styles.classtext}>{rowData['title']}</Text>
           </TouchableHighlight>
         } />
       );
     }
+
     return (  
       <View style={styles.container}>
         <NavigationBar 
           style={styles.navbar}
-          title={'Class List'}
+          title={'Group List'}
           height={44}
           titleColor={'#fff'}
           backgroundColor={'#004D40'}
-          leftButtonTitle={'Log Out'}
+          leftButtonTitle={'Back'}
           leftButtonTitleColor={'#fff'}
+          onLeftButtonPress={this.onLeftButtonPress.bind(this)}
           rightButtonTitle={'Add'}
           rightButtonTitleColor={'#fff'}
-          onRightButtonPress={this.onAddClass.bind(this)}
+          onRightButtonPress={this.onAddGroup.bind(this)}
         />
-        { listData } 
+        { listData }
       </View>
     );
   }
 
-  goGatechLogin() {
-    this.props.navigator.push({ screen: 'GatechLoginScreen' });
+  onLeftButtonPress() {
+    this.props.navigator.pop();
   }
 
-  onClassPress(classObj) {
+  onGroupPress() {
+    console.log('pressed on a group!');
+  }
+
+  onAddGroup() {
     this.props.navigator.push({ 
-      screen: 'MeetingListScreen',
+      screen: 'CreateMeetingScreen',
       passProps: {
-        username: this.state.username,
-        classObj: classObj
-      } 
+        username: this.props.username, 
+        classID: this.props.classObj.classID
+      }
     });
-  }
-
-  onAddClass() {
-    console.log('add a class? wut?');
   }
 }
 
@@ -156,4 +156,4 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('ClassListScreen', () => ClassListScreen);
+AppRegistry.registerComponent('MeetingListScreen', () => MeetingListScreen);

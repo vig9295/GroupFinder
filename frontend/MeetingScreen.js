@@ -24,11 +24,38 @@ import NavigationBar from 'react-native-navigation-bar';
 
 var width = Dimensions.get('window').width;
 
-export default class ClassListScreen extends Component {
+export default class MeetingScreen extends Component {
 
   constructor(props) {
     super(props);
     this.state = { error: '', data: [] };
+  }
+
+  componentDidMount() {
+    var formData = new FormData();
+    formData.append('memberID', this.props.username);
+    url = 'http://128.61.61.119:5000/class/' + this.props.classObj.classID + '/meetings';
+    fetch(url, {
+      method: 'POST',
+      body: formData
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+      if(responseJson['success']) {
+        if(responseJson['data'].length > 0) {
+          const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+          this.setState({
+            data: ds.cloneWithRows(responseJson['data'])
+          });
+        }
+      }
+      else {
+        this.setState({ error: responseJson['message'] });
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
   }
 
   render() { 
@@ -38,6 +65,16 @@ export default class ClassListScreen extends Component {
         <TouchableHighlight onPress={this.onAddGroup.bind(this)}>
           <Text style={styles.instructions}>You have no groups for this class. Press here to make one!</Text>
         </TouchableHighlight>
+      );
+    } else {
+      listData = (
+        <ListView style={styles.classlist}
+        dataSource={this.state.data}
+        renderRow={(rowData) => 
+          <TouchableHighlight style={styles.classitem} >
+            <Text style={styles.classtext}>{rowData['title']}</Text>
+          </TouchableHighlight>
+        } />
       );
     }
 
@@ -61,10 +98,6 @@ export default class ClassListScreen extends Component {
     );
   }
 
-  goGatechLogin() {
-    this.props.navigator.push({ screen: 'GatechLoginScreen' });
-  }
-
   onLeftButtonPress() {
     this.props.navigator.pop();
   }
@@ -74,7 +107,13 @@ export default class ClassListScreen extends Component {
   }
 
   onAddGroup() {
-    this.props.navigator.push({ screen: 'CreateGroupScreen' });
+    this.props.navigator.push({ 
+      screen: 'CreateMeetingScreen',
+      passProps: {
+        username: this.props.username, 
+        classID: this.props.classObj.classID
+      }
+    });
   }
 }
 
@@ -117,4 +156,4 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('ClassListScreen', () => ClassListScreen);
+AppRegistry.registerComponent('MeetingScreen', () => MeetingScreen);
