@@ -24,7 +24,7 @@ def login():
 	memberID = request.form['username']
 	password = request.form['password']
 	return jsonify(
-		script.check_member(memberID, password)
+		members.check_member(memberID, password)
 	)
 
 @app.route('/register', methods=['POST'])
@@ -34,7 +34,7 @@ def register():
 	password = request.form.get('password')
 	print memberID, name, password
 	return jsonify(
-		script.add_member(memberID, name, password)
+		members.add_member(memberID, name, password)
 	)
 
 @app.route('/create_class', methods=['POST'])
@@ -43,7 +43,7 @@ def create_class():
 	name = request.form['name']
 	leader = request.form['leader']
 	return jsonify(
-		script.add_class(classID, name, leader, "GT")
+		classes.add_class(classID, name, leader, "GT")
 	)
 
 @app.route('/create_classes', methods=['POST'])
@@ -57,8 +57,8 @@ def create_classes():
         leader = "Uddhav Bhagat"        
         term = items.get('props').get('term')
         if term == "SPRING 2017":
-            one = script.add_class(classID, name, leader, "GT")
-            two = script.add_class_member(classID, memberID)
+            one = classes.add_class(classID, name, leader, "GT")
+            two = classes.add_class_member(classID, memberID)
             if not two['success']:
                 return jsonify(
                     {
@@ -80,34 +80,34 @@ def add_class_member():
 	memberID = request.form['memberID']
 	classID = request.form['classID']
 	return jsonify(
-		script.add_class_member(classID, memberID)
+		classes.add_class_member(classID, memberID)
 	)
 
 @app.route('/find_classes', methods=['POST'])
 def find_classes():
 	memberID = request.form['memberID']
 	return jsonify(
-		script.find_classes(memberID)
+		classes.find_classes(memberID)
 	)
 
 @app.route('/get_class_details', methods=['POST'])
 def get_class_details():
 	classID = request.form['classID']
 	return jsonify(
-		script.get_class_details(classID)
+		classes.get_class_details(classID)
 	)
 
 @app.route('/class/<string:classID>/members', methods=['GET'])
 def get_class_members(classID):
     return jsonify(
-        script.get_class_members(classID)
+        classes.get_class_members(classID)
     )
 
 
 @app.route('/class/<string:classID>/meetings', methods=['POST'])
 def get_class_meetings(classID):
     return jsonify(
-        script.get_class_meetings(classID)
+        classes.get_class_meetings(classID)
     )
 
 @app.route('/create_meetings', methods=['POST'])
@@ -120,7 +120,7 @@ def create_meetings():
     dateJson = request.form['date']
     ownerID = request.form['owner']
     memberList = json.loads(request.form['memberList'])
-    one = script.create_meetings(meetingID, classID, title, location, description, dateJson, ownerID)
+    one = meetings.create_meetings(meetingID, classID, title, location, description, dateJson, ownerID)
     if not one['success']:
         return jsonify(
             {
@@ -129,7 +129,7 @@ def create_meetings():
             }
         )
     for item in memberList:
-        two = script.add_meeting_members(meetingID, item)
+        two = meetings.add_meeting_members(meetingID, item)
         if not two['success']:
             return jsonify(
                 {
@@ -150,7 +150,7 @@ def edit_meetings_location():
     meetingID = request.form['meetingID']
     location = request.form['location']
     return jsonify(
-        script.edit_meeting_location(meetingID, location)
+        meetings.edit_meeting_location(meetingID, location)
     )
 
 @app.route('/edit_meeting_title', methods=['POST'])
@@ -158,7 +158,7 @@ def edit_meeting_title():
     meetingID = request.form['meetingID']
     title = request.form['title']
     return jsonify(
-        script.edit_meeting_title(meetingID, title)
+        meetings.edit_meeting_title(meetingID, title)
     )
 
 @app.route('/edit_meeting_description', methods=['POST'])
@@ -166,7 +166,7 @@ def edit_meeting_description():
     meetingID = request.form['meetingID']
     description = request.form['description']
     return jsonify(
-        script.edit_meeting_description(meetingID, description)
+        meetings.edit_meeting_description(meetingID, description)
     )
 
 @app.route('/edit_meeting_date', methods=['POST'])
@@ -174,7 +174,7 @@ def edit_meeting_date():
     meetingID = request.form['meetingID']
     dateJson = json.loads(request.form['date'])
     return jsonify(
-        script.edit_meeting_date(meetingID, dateJson)
+        meetings.edit_meeting_date(meetingID, dateJson)
     )
 
 @app.route('/add_meeting_members', methods=['POST'])
@@ -182,13 +182,13 @@ def add_meeting_members():
     meetingID = request.form['meetingID']
     memberID = request.form['memberID']
     return jsonify(
-        script.add_meeting_members(meetingID, memberID)
+        meetings.add_meeting_members(meetingID, memberID)
     )
 
 @app.route('/<string:meetingID>/get_meeting_members', methods=['GET'])
 def get_meeting_members(meetingID):
     return jsonify(
-        script.get_meeting_members(meetingID)
+        meetings.get_meeting_members(meetingID)
     )
 
 if __name__ == '__main__':
