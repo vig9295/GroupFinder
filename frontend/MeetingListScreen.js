@@ -21,6 +21,7 @@ import {
 
 import Cookie from 'react-native-cookie';
 import NavigationBar from 'react-native-navigation-bar';
+import EStyleSheet from 'react-native-extended-stylesheet';
 
 var width = Dimensions.get('window').width;
 
@@ -56,9 +57,25 @@ export default class MeetingListScreen extends Component {
     .catch((error) => {
       console.error(error);
     });
+    fetch('https://group-finder.herokuapp.com/class/' + this.props.classObj.classID + '/members')
+      .then((response) => response.json())
+      .then((responseJson) => {
+        if(responseJson['success']) {
+          if(responseJson['data'].length > 0) {
+            this.setState({ classMembers : responseJson['data'] });
+          }
+        }
+        else {
+          this.setState({ error: responseJson['message'] });
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 
   render() { 
+
     let listData = null
     if (this.state.data.length == 0) {
       listData = (
@@ -71,18 +88,20 @@ export default class MeetingListScreen extends Component {
         <ListView style={styles.classlist}
         dataSource={this.state.data}
         renderRow={(rowData) => 
-          <TouchableHighlight style={styles.classitem} >
+          <TouchableHighlight style={styles.classitem} onPress={() => this.onMeetingPress(rowData)}>
             <Text style={styles.classtext}>{rowData['title']}</Text>
           </TouchableHighlight>
         } />
       );
     }
-
+    var studentList = this.state.classMembers.map(function(student) {
+      return <Text style={styles.smallListItem} key={student.memberID}>{student.name}</Text>
+    });
     return (  
       <View style={styles.container}>
         <NavigationBar 
           style={styles.navbar}
-          title={'Group List'}
+          title={'Meeting List'}
           height={44}
           titleColor={'#fff'}
           backgroundColor={'#004D40'}
@@ -93,7 +112,15 @@ export default class MeetingListScreen extends Component {
           rightButtonTitleColor={'#fff'}
           onRightButtonPress={this.onAddGroup.bind(this)}
         />
+        <Text style={styles.navmarginhelper}></Text>
+        <Text style={styles.titletext}>Your Meetings</Text>
         { listData }
+        <Text style={styles.titletext}>Available Meetings</Text>
+        <TouchableHighlight style={styles.classitem} >
+          <Text style={styles.classtext}>a meeting you arent a part of</Text>
+        </TouchableHighlight>
+        <Text style={styles.titletext}>Class Members</Text>
+        { studentList }
       </View>
     );
   }
@@ -102,8 +129,15 @@ export default class MeetingListScreen extends Component {
     this.props.navigator.pop();
   }
 
-  onGroupPress() {
-    console.log('pressed on a group!');
+  onMeetingPress(meetingObj) {
+    this.props.navigator.push({ 
+      screen: 'MeetingScreen',
+      passProps: {
+        username: this.state.username,
+        meetingObj: meetingObj,
+        classObj: this.props.classObj
+      } 
+    });
   }
 
   onAddGroup() {
@@ -119,13 +153,31 @@ export default class MeetingListScreen extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    //flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
+    flexDirection: 'column'
   },
-  classlist: {
-    marginTop: 44
+  titletext: {
+    fontSize: 22,
+    marginTop: 10,
+    marginBottom: 10
+  },
+  smallListItem: {
+    width: width,
+    borderBottomWidth: 1,
+    borderColor: '#E0F2F1',
+    justifyContent: 'center',
+    paddingLeft: 10,
+    paddingTop: 5,
+    paddingBottom: 5,
+    alignItems: 'center',
+    borderTopWidth: 1,
+    backgroundColor: 'white'
+  },
+  navmarginhelper: {
+    marginBottom:40
   },
   classitem: {
     height: 75,
@@ -134,6 +186,7 @@ const styles = StyleSheet.create({
     borderColor: '#E0F2F1',
     justifyContent: 'center',
     alignItems: 'center',
+    borderTopWidth: 3,
     backgroundColor: 'white'
   },
   classtext: {
