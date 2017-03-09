@@ -10,6 +10,8 @@ import {
   Navigator,
 } from 'react-native';
 
+import EStyleSheet from 'react-native-extended-stylesheet';
+
 import LoginScreen from './LoginScreen'
 import RegisterScreen from './RegisterScreen'
 import ClassListScreen from './ClassListScreen'
@@ -18,6 +20,7 @@ import GatechLoginScreen from './GatechLoginScreen'
 import ClassLoadingScreen from './ClassLoadingScreen'
 import CreateMeetingScreen from './CreateMeetingScreen'
 import EditGroupScreen from './EditGroupScreen'
+import MeetingScreen from './MeetingScreen'
 
 export default class GroupFinder extends Component {
   
@@ -46,6 +49,8 @@ export default class GroupFinder extends Component {
         return <ClassLoadingScreen navigator={nav} />
       case 'CreateMeetingScreen':
         return <CreateMeetingScreen navigator={nav} {...route.passProps}/>
+      case 'MeetingScreen':
+        return <MeetingScreen navigator={nav} {...route.passProps}/>
       case 'EditGroupScreen':
         return <EditGroupScreen navigator={nav} />
       }
