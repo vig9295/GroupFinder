@@ -179,7 +179,6 @@ def add_meeting_members(meetingID, memberID):
 
 def get_meeting_members(meetingID):
     db = connect()
-
     with db.cursor() as cur:
         try:
             cur.execute("SELECT memberID, name, major FROM members WHERE memberID in (SELECT memberID FROM meeting_members WHERE meetingID= %s)", (meetingID,))
