@@ -191,11 +191,17 @@ def get_meeting_members(meetingID):
         meetings.get_meeting_members(meetingID)
     )
 
-@app.route('/create_chat', methods =['POST'])
-def create_chat():
+@app.route('/<string:meetingID>//create_chat', methods =['POST'])
+def create_chat(meetingID):
     chatID = id_generator(32)
     return jsonify(
-        chat.create_chat(chatID)
+        chat.create_chat(chatID, meetingID)
+    )
+
+@app.route('/<string:meetingID>/get_chatID', methods = ['GET'])
+def get_chatID(meetingID):
+    return jsonify (
+        chat.get_chatID(meetingID)
     )
 
 @app.route('/<string:chatID>/create_message', methods = ['POST'])
@@ -205,13 +211,13 @@ def create_message(chatID):
     content = request.form['content']
     utc = request.form['time']
     return jsonify(
-        create_message(messageID, chatID, senderID, content, utc):
+        chat.create_message(messageID, chatID, senderID, content, utc):
     )
 
-@app.route('/<string:chatID>/get_chat', methods = ['GET'])
+@app.route('/<string:chatID>/get_messages', methods = ['GET'])
 def get_chat(chatID):
     return jsonify(
-        meetings.get_chat(chatID)
+        chat.get_messages(chatID)
     )
 
 if __name__ == '__main__':

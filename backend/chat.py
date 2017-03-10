@@ -30,14 +30,14 @@ def connect():
 #  CHAT
 #-----------
 
-def create_chat(chatID):
+def create_chat(chatID, meetingID):
     db = connect()
 
     with db.cursor() as cur:
         try:
             cur.execute("INSERT INTO chats (chatID) VALUES " + 
-                "(%s)", 
-                (chatID,))
+                "(%s, %s)", 
+                (chatID, meetingID,))
         except psycopg2.DatabaseError as db_error:
             db.rollback()
             print str(db_error)
@@ -53,6 +53,35 @@ def create_chat(chatID):
                 {
                     'success': True,
                     'message': 'chat created successfully'
+                }
+            )
+def get_chatID(meetingID):
+    db = connect()
+
+    with db.cursor() as cur:
+        try:
+            cur.execute("SELECT chatID FROM chats WHERE meetingID = %s ", (meetingID, ))
+            details = cur.fetchall()
+            stuff = []
+            for item in details:
+                stuff.append({
+                    'chatID' : item[0],
+                })
+
+            return (
+                {
+                    'success': True,
+                    'message': 'successful',
+                    'data' : stuff
+                }
+            )
+        except psycopg2.DatabaseError as db_error:
+            db.rollback()
+            print str(db_error)
+            return (
+                {
+                    'success': False,
+                    'message': 'DB error'
                 }
             )
 
