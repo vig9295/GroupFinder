@@ -85,7 +85,7 @@ def get_messages(chatID):
 
     with db.cursor() as cur:
         try:
-            cur.execute("SELECT messageID, senderID, content, utc FROM messages WHERE chatID = %s", (chatID, ))
+            cur.execute("SELECT messageID, senderID, content, utc FROM messages WHERE chatID = %s ORDER BY messageID desc LIMIT 30", (chatID, ))
             details = cur.fetchall()
             stuff = []
             m = 0
@@ -115,11 +115,11 @@ def get_messages(chatID):
                 }
             )
 
-print create_chat("hi")
-print create_message('123', '1234', 'mil', 'test', '1:00')
-print create_message('1', '1234', 'mil', 'test', '1:00')
-print create_message('13', '1234', 'mil', 'test', '1:00')
-print get_messages('1234')
+print create_chat("hii")
+print create_message('1213', 'hii', 'mil', 'test', '1:00')
+print create_message('11', 'hii', 'mil', 'test', '1:00')
+print create_message('113', 'hii', 'mil', 'test', '1:00')
+print get_messages('hii')
 
 
 

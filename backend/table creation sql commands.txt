@@ -35,7 +35,7 @@ functions to check
 update meetings with chatID
     evertime create meeting - chatID is created
 
-
+getchatID(meetingID)
 get_chatID(2members)
     if not there, create one
 
