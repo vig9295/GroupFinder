@@ -3,6 +3,9 @@ import json
 import script
 import string
 import random
+import classes
+import meetings
+import members
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -106,8 +109,9 @@ def get_class_members(classID):
 
 @app.route('/class/<string:classID>/meetings', methods=['POST'])
 def get_class_meetings(classID):
+    memberID = request.form['memberID']
     return jsonify(
-        classes.get_class_meetings(classID)
+        meetings.get_class_meetings(classID, memberID)
     )
 
 @app.route('/create_meetings', methods=['POST'])
@@ -189,6 +193,13 @@ def add_meeting_members():
 def get_meeting_members(meetingID):
     return jsonify(
         meetings.get_meeting_members(meetingID)
+    )
+
+@app.route('/get_chat_id', methods=['POST'])
+def add_meeting_members():
+    meetingID = request.form['meetingID']
+    return jsonify(
+        meetings.add_meeting_members(meetingID, memberID)
     )
 
 if __name__ == '__main__':

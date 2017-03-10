@@ -29,14 +29,12 @@ export default class MeetingScreen extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { error: '', messages: [] };
-    this.refresh()
-  }
-
-  refresh() {
+    this.state = { error: '', chatID: '' };
+    console.log(this.props);
     var formData = new FormData();
-    formData.append('meetingID', this.props.chatID);
-    fetch('https://group-finder.herokuapp.com/get_messages', 
+    formData.append('meetingID', this.props.meetingObj.meetingID);
+    url = 'http://128.61.61.119:5000/get_chat_id'; 
+    fetch(url, 
       {
         method: 'POST',
         body: formData
@@ -45,7 +43,7 @@ export default class MeetingScreen extends Component {
     .then((response) => response.json())
     .then((responseJson) => {
       if(responseJson['success']) {
-        this.state.messages = responseJson['data']
+        this.state.chatID = responseJson['chatID']
       }
       else {
         this.setState({ error: responseJson['message'] });
@@ -68,8 +66,20 @@ export default class MeetingScreen extends Component {
           leftButtonTitle={'Back'}
           leftButtonTitleColor={'#fff'}
           onLeftButtonPress={this.onLeftButtonPress.bind(this)}
+          rightButtonTitle={'Chat'}
+          rightButtonTitleColor={'#fff'}
+          onRightButtonPress={this.onRightButtonPress.bind(this)}
         />
+        <Text style={styles.navmarginhelper}></Text>
         <Text style={styles.instructions}>Class</Text>
+        <Text>{this.props.classObj.name}</Text>
+        <Text style={styles.instructions}>Date</Text>
+        <Text>{this.props.meetingObj.dateJson}</Text>
+        <Text style={styles.instructions}>Location</Text>
+        <Text>{this.props.meetingObj.location}</Text>
+        <Text style={styles.instructions}>Description</Text>
+        <Text>{this.props.meetingObj.description}</Text>
+
       </View>
     );
   }

@@ -29,13 +29,13 @@ export default class MeetingListScreen extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { error: '', data: [] };
+    this.state = { error: '', meetingsPartOf: [], meetingsNotPartOf: [], classMembers: []};
   }
 
   componentDidMount() {
     var formData = new FormData();
     formData.append('memberID', this.props.username);
-    url = 'https://group-finder.herokuapp.com/class/' + this.props.classObj.classID + '/meetings';
+    url = 'http://128.61.61.119:5000/class/' + this.props.classObj.classID + '/meetings';
     fetch(url, {
       method: 'POST',
       body: formData
@@ -43,12 +43,12 @@ export default class MeetingListScreen extends Component {
     .then((response) => response.json())
     .then((responseJson) => {
       if(responseJson['success']) {
-        if(responseJson['data'].length > 0) {
-          const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-          this.setState({
-            data: ds.cloneWithRows(responseJson['data'])
-          });
-        }
+        console.log(responseJson)
+        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        this.setState({
+          meetingsPartOf: ds.cloneWithRows(responseJson['data1']), 
+          meetingsNotPartOf: ds.cloneWithRows(responseJson['data2'])
+        });
       }
       else {
         this.setState({ error: responseJson['message'] });
@@ -57,7 +57,8 @@ export default class MeetingListScreen extends Component {
     .catch((error) => {
       console.error(error);
     });
-    fetch('https://group-finder.herokuapp.com/class/' + this.props.classObj.classID + '/members')
+    url = 'http://128.61.61.119:5000/class/' + this.props.classObj.classID + '/members';
+    fetch(url)
       .then((response) => response.json())
       .then((responseJson) => {
         if(responseJson['success']) {
@@ -76,17 +77,37 @@ export default class MeetingListScreen extends Component {
 
   render() { 
 
-    let listData = null
-    if (this.state.data.length == 0) {
-      listData = (
+    let meetingsYouArePartOf = null
+    if (this.state.meetingsNotPartOf.length == 0) {
+      meetingsYouArePartOf = (
         <TouchableHighlight onPress={this.onAddGroup.bind(this)}>
           <Text style={styles.instructions}>You have no groups for this class. Press here to make one!</Text>
         </TouchableHighlight>
       );
     } else {
-      listData = (
+      meetingsYouArePartOf = (
         <ListView style={styles.classlist}
-        dataSource={this.state.data}
+        dataSource={this.state.meetingsPartOf}
+        renderRow={(rowData) => 
+          <TouchableHighlight style={styles.classitem} onPress={() => this.onMeetingPress(rowData)}>
+            <Text style={styles.classtext}>{rowData['title']}</Text>
+          </TouchableHighlight>
+        } />
+      );
+    }
+
+    let meetingsNotPartOf = null
+
+    if (this.state.meetingsNotPartOf.length == 0) {
+      meetingsNotPartOf = (
+        <TouchableHighlight onPress={this.onAddGroup.bind(this)}>
+          <Text style={styles.instructions}>You have no groups for this class. Press here to make one!</Text>
+        </TouchableHighlight>
+      );
+    } else {
+      meetingsNotPartOf = (
+        <ListView style={styles.classlist}
+        dataSource={this.state.meetingsNotPartOf}
         renderRow={(rowData) => 
           <TouchableHighlight style={styles.classitem} onPress={() => this.onMeetingPress(rowData)}>
             <Text style={styles.classtext}>{rowData['title']}</Text>
@@ -114,11 +135,9 @@ export default class MeetingListScreen extends Component {
         />
         <Text style={styles.navmarginhelper}></Text>
         <Text style={styles.titletext}>Your Meetings</Text>
-        { listData }
+        { meetingsYouArePartOf }
         <Text style={styles.titletext}>Available Meetings</Text>
-        <TouchableHighlight style={styles.classitem} >
-          <Text style={styles.classtext}>a meeting you arent a part of</Text>
-        </TouchableHighlight>
+        { meetingsNotPartOf }
         <Text style={styles.titletext}>Class Members</Text>
         { studentList }
       </View>
