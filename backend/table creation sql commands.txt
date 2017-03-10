@@ -4,9 +4,20 @@ CREATE TABLE classes(classID TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, lead
 
 CREATE TABLE class_members (classID TEXT NOT NULL, memberID TEXT NOT NULL, PRIMARY KEY(classID, memberID));
 
-CREATE TABLE meetings (meetingID TEXT NOT NULL PRIMARY KEY, classID TEXT NOT NULL, title TEXT NOT NULL, location TEXT NOT NULL, starttime TEXT NOT NULL, description TEXT NOT NULL, memberID TEXT NOT NULL);
+CREATE TABLE meetings (meetingID TEXT NOT NULL PRIMARY KEY, classID TEXT NOT NULL, title TEXT NOT NULL, location TEXT NOT NULL, starttime TEXT NOT NULL, description TEXT NOT NULL, memberID TEXT NOT NULL, chatID TEXT NOT NULL);
 
 CREATE TABLE meeting_members (meetingID TEXT NOT NULL, memberID TEXT NOT NULL, PRIMARY KEY(meetingID, memberID));
+
+CREATE TABLE chats (chatID TEXT PRIMARY KEY NOT NULL);
+
+CREATE TABLE chat_members (chatID TEXT NOT NULL, member1 TEXT NOT NULL, member2 TEXT NOT NULL, PRIMARY KEY(chatID, member1, member2));
+
+CREATE TABLE messages (messageID SERIAL PRIMARY KEY NOT NULL, chatID TEXT NOT NULL, senderID TEXT NOT NULL, content TEXT NOT NULL, utc TEXT NOT NULL);
+
+
+chats chatID(key, autoincrement), chatdetails
+chatmembers chatID(key) member1 & member2(key)
+messages messageID(key), chatID, senderID, content, utc
 
 
 functions to check
@@ -18,3 +29,16 @@ functions to check
   edit_meeting_date
   add_meeting_members
   get_meeting_members
+
+
+
+update meetings with chatID
+    evertime create meeting - chatID is created
+
+getchatID(meetingID)
+get_chatID(2members)
+    if not there, create one
+
+get_messages(chatID)
+
+create_message(chatID, senderID, content, utc)

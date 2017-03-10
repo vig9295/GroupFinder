@@ -198,8 +198,11 @@ def get_meeting_members(meetingID):
 @app.route('/get_chat_id', methods=['POST'])
 def add_meeting_members():
     meetingID = request.form['meetingID']
+    print meetingID
     return jsonify(
-        meetings.add_meeting_members(meetingID, memberID)
+        {
+            
+        }
     )
 
 if __name__ == '__main__':

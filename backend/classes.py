@@ -203,6 +203,7 @@ def get_class_meetings(classID, memberID):
                     'dateJson': item[4], 
                     'meetingID': item[5],
                 })
+            
             return (
                 {
                     'success': True,
