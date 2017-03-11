@@ -1,0 +1,24 @@
+App key
+p00yuougn8p1oax
+App secret
+nkimw90vmoqbml0
+
+
+
+
+Upload Code
+
+File file = new File("working-draft.txt");
+FileInputStream inputStream = new FileInputStream(file);
+Entry response = mDBApi.putFile("/magnum-opus.txt", inputStream,
+                                file.length(), null, null);
+Log.i("DbExampleLog", "The uploaded file's rev is: " + response.rev);
+
+
+Download Code
+
+
+File file = new File("/magnum-opus.txt");
+FileOutputStream outputStream = new FileOutputStream(file);
+DropboxFileInfo info = mDBApi.getFile("/magnum-opus.txt", null, outputStream, null);
+Log.i("DbExampleLog", "The file's rev is: " + info.getMetadata().rev);

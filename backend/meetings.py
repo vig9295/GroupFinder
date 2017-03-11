@@ -24,15 +24,20 @@ def connect():
 #  MEETINGS
 #-----------
 
+def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
 
 def create_meetings(meetingID, classID, title, location, description, dateJson, memberID):
     db = connect()
     #timestr = str(dateJson['year']) + '-' + str(dateJson['month']) + '-' + str(dateJson['day']) + ' ' + str(dateJson['hour']) + ':' + str(dateJson['minute'])
     with db.cursor() as cur:
+
+        chatID = id_generator(32)
+        cur.execute("INSERT INTO chats (chatID) VALUES (%s)", (chatID,))
         try:
-            cur.execute("INSERT INTO meetings (meetingID, classID, title, location, description, starttime, memberID) VALUES " +
-                                                "(%s, %s, %s, %s, %s, %s, %s)",
-                                            (meetingID, classID, title, location, description, dateJson, memberID))
+            cur.execute("INSERT INTO meetings (meetingID, classID, title, location, description, starttime, memberID, chatID) VALUES " +
+                                                "(%s, %s, %s, %s, %s, %s, %s, %s)",
+                                            (meetingID, classID, title, location, description, dateJson, memberID, chatID))
         except psycopg2.DatabaseError as db_error:
             db.rollback()
             print str(db_error)

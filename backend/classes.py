@@ -188,7 +188,9 @@ def get_class_meetings(classID, memberID):
 
     with db.cursor() as cur:
         try:
-            cur.execute("SELECT classID, title, location, description, starttime, meetingID FROM meetings WHERE meetingID in (SELECT meetingID FROM meetings WHERE classID= %s)", (classID,))
+
+            cur.execute("SELECT classID, title, location, description, starttime, meetingID, chatID FROM meetings WHERE meetingID in (SELECT meetingID FROM meetings WHERE classID= %s)", (classID,))
+
             details = cur.fetchall()
             stuff = []
             for item in details:
@@ -201,9 +203,10 @@ def get_class_meetings(classID, memberID):
                     'location' : item[2],
                     'description' : item[3],
                     'dateJson': item[4], 
-                    'meetingID': item[5],
+                    'meetingID': item[5], 
+                    'chatID': item[6]
                 })
-            
+
             return (
                 {
                     'success': True,

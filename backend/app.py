@@ -58,7 +58,7 @@ def create_classes():
     for items in data_json:
         classID = items['id']
         name = items['title']
-        leader = "Uddhav Bhagat"        
+        leader = "Uddhav Bhagat"
         term = items.get('props').get('term')
         if term == "SPRING 2017":
             one = classes.add_class(classID, name, leader, "GT")
@@ -196,21 +196,31 @@ def get_meeting_members(meetingID):
         meetings.get_meeting_members(meetingID)
     )
 
-@app.route('/get_chat_id', methods=['POST'])
-def get_chat_id():
-    meetingID = request.form['meetingID']
-    return jsonify(
-        {
-            'success': True, 
-            'chatID': 'hii'
-        }
+
+@app.route('/<string:meetingID>/get_chatID', methods = ['GET'])
+def get_chatID(meetingID):
+    return jsonify (
+        chat.get_chatID(meetingID)
     )
 
-@app.route('/get_messages', methods=['POST'])
-def get_messages():
-    print "LEL"
-    chatID = request.form['chatID']
-    print chatID
+@app.route('/<string:memberID>/<string:member1ID>/get_chatID', methods=['GET'])
+def get_chatID(memberID, member1ID):
+    return jsonify (
+        chat.get_chatID(memberID, member1ID)
+    )
+
+@app.route('/<string:chatID>/create_message', methods = ['POST'])
+def create_message(chatID):
+    senderID = request.form['senderID']
+    content = request.form['content']
+    utc = request.form['time']
+    return jsonify(
+        chat.create_message(chatID, senderID, content, utc):
+    )
+
+@app.route('/<string:chatID>/get_messages', methods = ['GET'])
+def get_chat(chatID):
+>>>>>>> 831f654b4a33b0c2cf9bd21ff26d6513c8daa397
     return jsonify(
         chat.get_messages(chatID)
     )

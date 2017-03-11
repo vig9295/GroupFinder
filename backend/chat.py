@@ -30,38 +30,98 @@ def connect():
 #  CHAT
 #-----------
 
-def create_chat(chatID):
+# def create_chat(chatID, meetingID):
+#     db = connect()
+#
+#     with db.cursor() as cur:
+#         try:
+#             cur.execute("INSERT INTO chats (chatID) VALUES " +
+#                 "(%s, %s)",
+#                 (chatID, meetingID,))
+#         except psycopg2.DatabaseError as db_error:
+#             db.rollback()
+#             print str(db_error)
+#             return (
+#                 {
+#                     'success': False,
+#                     'message': 'Unable to create the db entry'
+#                 }
+#             )
+#         else:
+#             db.commit()
+#             return (
+#                 {
+#                     'success': True,
+#                     'message': 'chat created successfully'
+#                 }
+#             )
+
+
+def get_chatID(meetingID):
     db = connect()
 
     with db.cursor() as cur:
         try:
-            cur.execute("INSERT INTO chats (chatID) VALUES " + 
-                "(%s)", 
-                (chatID,))
+            cur.execute("SELECT chatID FROM meetings WHERE meetingID = %s ", (meetingID, ))
+            details = cur.fetchall()
+            return (
+                {
+                    'success': True,
+                    'chatID' : chat[0][0]
+                }
+            )
+
         except psycopg2.DatabaseError as db_error:
             db.rollback()
             print str(db_error)
             return (
                 {
                     'success': False,
-                    'message': 'Unable to create the db entry'
-                }
-            )
-        else:
-            db.commit()
-            return (
-                {
-                    'success': True,
-                    'message': 'chat created successfully'
+                    'message': 'DB error'
                 }
             )
 
-def create_message(messageID, chatID, senderID, content, utc):
+def get_chatID(memberID, member1ID):
     db = connect()
 
     with db.cursor() as cur:
         try:
-            cur.execute("INSERT INTO messages (messageID, chatID, senderID, content, utc) VALUES " + "(%s, %s, %s, %s, %s)",(messageID, chatID, senderID, content, utc))
+            cur.execute("SELECT chatID FROM chats WHERE member1ID = %s AND member2ID", (member1ID, member2ID))
+            details = cur.fetchall()
+            if details:
+                return (
+                    {
+                        'success': True,
+                        'chatID' : chat[0][0]
+                    }
+                )
+            else:
+                chatID = id_generator(32)
+                cur.execute("INSERT INTO chats (chatID, member1ID, member2ID) VALUES (%s, %s, %s)", (chatID, memberID, member1ID))
+                cur.execute("INSERT INTO chats (chatID, member1ID, member2ID) VALUES (%s, %s, %s)", (chatID, member1ID, memberID))
+                return (
+                    {
+                        'success': True,
+                        'chatID' : chatID
+                    }
+                )
+
+        except psycopg2.DatabaseError as db_error:
+            db.rollback()
+            print str(db_error)
+            return (
+                {
+                    'success': False,
+                    'message': 'DB error'
+                }
+            )
+
+def create_message(chatID, senderID, content, utc):
+    db = connect()
+
+    with db.cursor() as cur:
+        try:
+            cur.execute("INSERT INTO messages (chatID, senderID, content, utc) VALUES (%s, %s, %s, %s)", (chatID, senderID, content, utc))
         except psycopg2.DatabaseError as db_error:
             db.rollback()
             print str(db_error)
@@ -85,18 +145,16 @@ def get_messages(chatID):
 
     with db.cursor() as cur:
         try:
-            cur.execute("SELECT messageID, senderID, content, utc FROM messages WHERE chatID = %s ORDER BY messageID desc LIMIT 30", (chatID, ))
+            cur.execute("SELECT messageID, senderID, content, utc FROM messages WHERE chatID = %s ORDER BY messageID DESC LIMIT 30", (chatID, ))
             details = cur.fetchall()
             stuff = []
-            m = 0
             for item in details:
-                if m < 30:
-                    stuff.append({
-                        'messageID' : item[0],
-                        'senderID' : item[1],
-                        'content': item[2],
-                        'utc': item[3],
-                    })
+                stuff.append({
+                    'messageID' : item[0],
+                    'senderID' : item[1],
+                    'content': item[2],
+                    'utc': item[3],
+                })
 
             return (
                 {
@@ -115,11 +173,12 @@ def get_messages(chatID):
                 }
             )
 
+
+def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
+
 # print create_chat("hii")
 # print create_message('1213', 'hii', 'mil', 'test', '1:00')
 # print create_message('11', 'hii', 'mil', 'test', '1:00')
 # print create_message('113', 'hii', 'mil', 'test', '1:00')
 # print get_messages('hii')
-
-
-
