@@ -86,19 +86,20 @@ def get_chatID(memberID, member1ID):
 
     with db.cursor() as cur:
         try:
-            cur.execute("SELECT chatID FROM chats WHERE member1ID = %s AND member2ID", (member1ID, member2ID))
+            cur.execute("SELECT chatID FROM chats WHERE member1 = %s AND member2 = %s", (memberID, member1ID))
             details = cur.fetchall()
             if details:
                 return (
                     {
                         'success': True,
-                        'chatID' : chat[0][0]
+                        'chatID' : details[0][0]
                     }
                 )
             else:
                 chatID = id_generator(32)
-                cur.execute("INSERT INTO chats (chatID, member1ID, member2ID) VALUES (%s, %s, %s)", (chatID, memberID, member1ID))
-                cur.execute("INSERT INTO chats (chatID, member1ID, member2ID) VALUES (%s, %s, %s)", (chatID, member1ID, memberID))
+                cur.execute("INSERT INTO chats (chatID, member1, member2) VALUES (%s, %s, %s)", (chatID, memberID, member1ID))
+                cur.execute("INSERT INTO chats (chatID, member1, member2) VALUES (%s, %s, %s)", (chatID, member1ID, memberID))
+                db.commit()
                 return (
                     {
                         'success': True,
@@ -150,10 +151,13 @@ def get_messages(chatID):
             stuff = []
             for item in details:
                 stuff.append({
-                    'messageID' : item[0],
-                    'senderID' : item[1],
-                    'content': item[2],
-                    'utc': item[3],
+                    '_id' : item[0],
+                    'user' : {
+                        '_id': item[1],
+                        'name': item[1],
+                        'avatar': ''
+                    },
+                    'text': item[2],
                 })
 
             return (
@@ -173,11 +177,12 @@ def get_messages(chatID):
                 }
             )
 
+
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
-print create_chat("hii")
-print create_message('1213', 'hii', 'mil', 'test', '1:00')
-print create_message('11', 'hii', 'mil', 'test', '1:00')
-print create_message('113', 'hii', 'mil', 'test', '1:00')
-print get_messages('hii')
+# print create_chat("hii")
+# print create_message('1213', 'hii', 'mil', 'test', '1:00')
+# print create_message('11', 'hii', 'mil', 'test', '1:00')
+# print create_message('113', 'hii', 'mil', 'test', '1:00')
+# print get_messages('hii')

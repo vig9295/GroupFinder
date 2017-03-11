@@ -88,8 +88,10 @@ export default class CreateMeetingScreen extends Component {
     formData.append('description', this.state.description);
     formData.append('date', this.state.date.toString());
     formData.append('owner', this.props.username);
-    formData.append('memberList', JSON.stringify(this.state.members));
-    url = 'https://group-finder.herokuapp.com/create_meetings'
+    members = this.state.members;
+    members.push(this.props.username);
+    formData.append('memberList', JSON.stringify(members));
+    url = 'http://128.61.61.119:5000/create_meetings'
     fetch(url, 
       {
         method: 'POST',

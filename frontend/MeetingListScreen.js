@@ -29,7 +29,7 @@ export default class MeetingListScreen extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { error: '', data: [] };
+    this.state = { error: '', meetingsPartOf: [], meetingsNotPartOf: [], classMembers: []};
   }
 
   componentDidMount() {
@@ -43,12 +43,11 @@ export default class MeetingListScreen extends Component {
     .then((response) => response.json())
     .then((responseJson) => {
       if(responseJson['success']) {
-        if(responseJson['data'].length > 0) {
-          const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-          this.setState({
-            data: ds.cloneWithRows(responseJson['data'])
-          });
-        }
+        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        this.setState({
+          meetingsPartOf: ds.cloneWithRows(responseJson['data1']), 
+          meetingsNotPartOf: ds.cloneWithRows(responseJson['data2'])
+        });
       }
       else {
         this.setState({ error: responseJson['message'] });
@@ -57,12 +56,21 @@ export default class MeetingListScreen extends Component {
     .catch((error) => {
       console.error(error);
     });
-    fetch('https://group-finder.herokuapp.com/class/' + this.props.classObj.classID + '/members')
+    url = 'https://group-finder.herokuapp.com/class/' + this.props.classObj.classID + '/members';
+    fetch(url)
       .then((response) => response.json())
       .then((responseJson) => {
         if(responseJson['success']) {
           if(responseJson['data'].length > 0) {
-            this.setState({ classMembers : responseJson['data'] });
+            var data = responseJson['data'];
+            classMembers = []
+            for (var i = 0; i < data.length; i++) {
+              if(data[i].memberID != this.props.username) {
+                classMembers.push(data[i]);
+              }
+            }
+            const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+            this.setState({ classMembers : ds.cloneWithRows(classMembers) });
           }
         }
         else {
@@ -75,18 +83,17 @@ export default class MeetingListScreen extends Component {
   }
 
   render() { 
-
-    let listData = null
-    if (this.state.data.length == 0) {
-      listData = (
+    let meetingsYouArePartOf = null
+    if (this.state.meetingsNotPartOf.length == 0) {
+      meetingsYouArePartOf = (
         <TouchableHighlight onPress={this.onAddGroup.bind(this)}>
           <Text style={styles.instructions}>You have no groups for this class. Press here to make one!</Text>
         </TouchableHighlight>
       );
     } else {
-      listData = (
+      meetingsYouArePartOf = (
         <ListView style={styles.classlist}
-        dataSource={this.state.data}
+        dataSource={this.state.meetingsPartOf}
         renderRow={(rowData) => 
           <TouchableHighlight style={styles.classitem} onPress={() => this.onMeetingPress(rowData)}>
             <Text style={styles.classtext}>{rowData['title']}</Text>
@@ -94,9 +101,43 @@ export default class MeetingListScreen extends Component {
         } />
       );
     }
-    var studentList = this.state.classMembers.map(function(student) {
-      return <Text style={styles.smallListItem} key={student.memberID}>{student.name}</Text>
-    });
+
+    let meetingsNotPartOf = null
+
+    if (this.state.meetingsNotPartOf.length == 0) {
+      meetingsNotPartOf = (
+        <TouchableHighlight onPress={this.onAddGroup.bind(this)}>
+          <Text style={styles.instructions}>You have no groups for this class. Press here to make one!</Text>
+        </TouchableHighlight>
+      );
+    } else {
+      meetingsNotPartOf = (
+        <ListView style={styles.classlist}
+        dataSource={this.state.meetingsNotPartOf}
+        renderRow={(rowData) => 
+          <TouchableHighlight style={styles.classitem} onPress={() => this.onMeetingPress(rowData)}>
+            <Text style={styles.classtext}>{rowData['title']}</Text>
+          </TouchableHighlight>
+        } />
+      );
+    }
+
+    if (this.state.classMembers.length == 0) {
+      studentList = (
+         <Text style={styles.instructions}>You have no students in this class</Text>
+      );
+    } else {
+      studentList = (
+        <ListView style={styles.classlist}
+          dataSource={this.state.classMembers}
+          renderRow={(rowData) => 
+            <TouchableHighlight style={styles.classitem} onPress={() => this.onMemberPress(rowData)}>
+              <Text style={styles.classtext}>{rowData['name']}</Text>
+            </TouchableHighlight>
+          } 
+        />
+      );
+    }
     return (  
       <View style={styles.container}>
         <NavigationBar 
@@ -114,11 +155,9 @@ export default class MeetingListScreen extends Component {
         />
         <Text style={styles.navmarginhelper}></Text>
         <Text style={styles.titletext}>Your Meetings</Text>
-        { listData }
+        { meetingsYouArePartOf }
         <Text style={styles.titletext}>Available Meetings</Text>
-        <TouchableHighlight style={styles.classitem} >
-          <Text style={styles.classtext}>a meeting you arent a part of</Text>
-        </TouchableHighlight>
+        { meetingsNotPartOf }
         <Text style={styles.titletext}>Class Members</Text>
         { studentList }
       </View>
@@ -133,10 +172,39 @@ export default class MeetingListScreen extends Component {
     this.props.navigator.push({ 
       screen: 'MeetingScreen',
       passProps: {
-        username: this.state.username,
+        username: this.props.username,
         meetingObj: meetingObj,
         classObj: this.props.classObj
       } 
+    });
+  }
+
+  onMemberPress(memberObj) {
+    var formData = new FormData();
+    formData.append('memberID', this.props.username);
+    formData.append('member1ID', memberObj.memberID);
+    url = 'http://128.61.61.119:5000/get_chatID2';
+    fetch(url, {
+      method: 'POST',
+      body: formData
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+      if(responseJson['success']) {
+        this.props.navigator.push({ 
+          screen: 'ChatScreen',
+          passProps: {
+            username: this.props.username, 
+            chatID: responseJson['chatID']
+          }
+        });
+      }
+      else {
+        this.setState({ error: responseJson['message'] });
+      }
+    })
+    .catch((error) => {
+      console.error(error);
     });
   }
 

@@ -29,8 +29,9 @@ export default class MeetingScreen extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { error: '', data: [] };
-    console.log(this.props);
+    this.state = { error: '', chatID: '' };
+    var formData = new FormData();
+    formData.append('meetingID', this.props.meetingObj.meetingID);
   }
 
   render() { 
@@ -45,9 +46,9 @@ export default class MeetingScreen extends Component {
           leftButtonTitle={'Back'}
           leftButtonTitleColor={'#fff'}
           onLeftButtonPress={this.onLeftButtonPress.bind(this)}
-          rightButtonTitle={'Add'}
+          rightButtonTitle={'Chat'}
           rightButtonTitleColor={'#fff'}
-          onRightButtonPress={this.onAddGroup.bind(this)}
+          onRightButtonPress={this.onRightButtonPress.bind(this)}
         />
         <Text style={styles.navmarginhelper}></Text>
         <Text style={styles.instructions}>Class</Text>
@@ -67,16 +68,12 @@ export default class MeetingScreen extends Component {
     this.props.navigator.pop();
   }
 
-  onGroupPress() {
-    console.log('pressed on a group!');
-  }
-
-  onAddGroup() {
+  onRightButtonPress() {
     this.props.navigator.push({ 
-      screen: 'CreateMeetingScreen',
+      screen: 'ChatScreen',
       passProps: {
         username: this.props.username, 
-        classID: this.props.classObj.classID
+        chatID: this.props.meetingObj.chatID,
       }
     });
   }

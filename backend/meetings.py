@@ -3,6 +3,7 @@ import psycopg2
 import uuid
 import random
 import urlparse
+import string
 
 urlparse.uses_netloc.append("postgres")
 url = urlparse.urlparse("postgres://ehbxolgrxnzbxg:Q_wWyMAWJl2iEFGFaXmK7GyUxG@ec2-54-235-102-235.compute-1.amazonaws.com:5432/d99uk4hl0qtt4l")
@@ -33,7 +34,7 @@ def create_meetings(meetingID, classID, title, location, description, dateJson, 
     with db.cursor() as cur:
 
         chatID = id_generator(32)
-        cur.execute("INSERT INTO chats (chatID) VALUES (%s)", (chatID,))
+        cur.execute("INSERT INTO chats (chatID, member1, member2) VALUES (%s, %s, %s)", (chatID, 'na', 'na'))
         try:
             cur.execute("INSERT INTO meetings (meetingID, classID, title, location, description, starttime, memberID, chatID) VALUES " +
                                                 "(%s, %s, %s, %s, %s, %s, %s, %s)",
@@ -211,3 +212,83 @@ def get_meeting_members(meetingID):
                     'message': 'DB error'
                 }
             )
+
+def get_class_meetings_partof(classID, memberID):
+    db = connect()
+    with db.cursor() as cur:
+        try:
+            cur.execute("SELECT classID, title, location, description, starttime, meetingID, chatID FROM meetings where meetingID in (SELECT meetingID from meeting_members WHERE meetingID in (SELECT meetingID from meetings where classID=%s) and memberID=%s)", (classID, memberID))
+            details = cur.fetchall()
+            # print details
+            stuff = []
+            for item in details:
+                # date, time = item[4].split(' ')
+                # year, month, day = date.split('-')
+                # hour, minute = time.split(':')
+                stuff.append({
+                    'classID' : item[0],
+                    'title' : item[1],
+                    'location' : item[2],
+                    'description' : item[3],
+                    'dateJson': item[4],
+                    'meetingID': item[5],
+                    'chatID': item[6]
+                })
+            return stuff
+        except psycopg2.DatabaseError as db_error:
+            db.rollback()
+            print str(db_error)
+            return False
+
+
+def get_class_meetings_all(classID):
+    db = connect()
+    with db.cursor() as cur:
+        try:
+            cur.execute("SELECT classID, title, location, description, starttime, meetingID, chatID FROM meetings WHERE meetingID in (SELECT meetingID FROM meetings WHERE classID= %s)", (classID,))
+            details = cur.fetchall()
+            # print details
+            stuff = []
+            for item in details:
+                stuff.append({
+                    'classID' : item[0],
+                    'title' : item[1],
+                    'location' : item[2],
+                    'description' : item[3],
+                    'dateJson': item[4],
+                    'meetingID': item[5],
+                    'chatID': item[6]
+                })
+            return stuff
+        except psycopg2.DatabaseError as db_error:
+            db.rollback()
+            print str(db_error)
+            return False
+
+def get_class_meetings(classID, memberID):
+    data1 = get_class_meetings_partof(classID, memberID)
+    data2 = get_class_meetings_all(classID)
+
+    if (not data1 and type(data1) == bool) or (not data2 and type(data2) == bool):
+        return (
+            {
+                'success': False,
+                'message': "Database Error. Please try again later."
+            }
+        )
+
+    data3 = []
+    meetings_blacklisted = []
+    for i in data1:
+        meetings_blacklisted.append(i['meetingID'])
+    for j in data2:
+        if j['meetingID'] not in meetings_blacklisted:
+            data3.append(j)
+
+    return (
+        {
+            'success': True,
+            'data1': data1,
+            'data2': data3
+        }
+    )

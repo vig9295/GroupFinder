@@ -183,12 +183,14 @@ def get_class_members(classID):
                 }
             )
 
-def get_class_meetings(classID):
+def get_class_meetings(classID, memberID):
     db = connect()
 
     with db.cursor() as cur:
         try:
-            cur.execute("SELECT classID, title, location, description, starttime, chatID FROM meetings WHERE meetingID in (SELECT meetingID FROM meetings WHERE classID= %s)", (classID,))
+
+            cur.execute("SELECT classID, title, location, description, starttime, meetingID, chatID FROM meetings WHERE meetingID in (SELECT meetingID FROM meetings WHERE classID= %s)", (classID,))
+
             details = cur.fetchall()
             stuff = []
             for item in details:
@@ -200,8 +202,9 @@ def get_class_meetings(classID):
                     'title' : item[1],
                     'location' : item[2],
                     'description' : item[3],
-                    'dateJson': item[4],
-                    'chatID': item[5]
+                    'dateJson': item[4], 
+                    'meetingID': item[5], 
+                    'chatID': item[6]
                 })
 
             return (
