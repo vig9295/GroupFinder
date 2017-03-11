@@ -8,9 +8,7 @@ CREATE TABLE meetings (meetingID TEXT NOT NULL PRIMARY KEY, classID TEXT NOT NUL
 
 CREATE TABLE meeting_members (meetingID TEXT NOT NULL, memberID TEXT NOT NULL, PRIMARY KEY(meetingID, memberID));
 
-CREATE TABLE chats (chatID TEXT NOT NULL, meetingID TEXT NOT NULL, PRIMARY KEY(chatID, meetingID));
-
-CREATE TABLE chat_members (chatID TEXT NOT NULL, member1 TEXT NOT NULL, member2 TEXT NOT NULL, PRIMARY KEY(chatID, member1, member2));
+CREATE TABLE chats (chatID TEXT PRIMARY KEY NOT NULL, member1 TEXT NOT NULL, member2 TEXT NOT NULL);
 
 CREATE TABLE messages (messageID SERIAL PRIMARY KEY NOT NULL, chatID TEXT NOT NULL, senderID TEXT NOT NULL, content TEXT NOT NULL, utc TEXT NOT NULL);
 
