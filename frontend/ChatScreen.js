@@ -23,6 +23,9 @@ import Cookie from 'react-native-cookie';
 import NavigationBar from 'react-native-navigation-bar';
 import EStyleSheet from 'react-native-extended-stylesheet';
 import { GiftedChat } from 'react-native-gifted-chat';
+import Pusher from 'pusher-js/react-native';
+
+
 
 var width = Dimensions.get('window').width;
 
@@ -30,21 +33,53 @@ export default class ChatScreen extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { error: '', messages: '' };
-    var formData = new FormData();
-    formData.append('chatID', this.props.chatID);
-    url = 'http://128.61.61.119:5000/get_messages'; 
+    this.state = { error: '', messages: [] };
+    console.log(this.props.username);
+    this.refresh()
+    this.pusher = new Pusher('0aab40d486c9e2ce1c43', {
+      encrypted: true
+    });
+    this.chatRoom = this.pusher.subscribe(this.props.chatID);
+  }
+
+  componentDidMount() {
+    var dude = this;
+    this.chatRoom.bind('new_message', function(data) {
+      console.log("BRO IF WE GOT HERE, FUCK YEAH! ");
+      if(data['success']) {
+        dude.refresh();
+      }
+    });
+  }
+
+  refresh() {
+    url = 'http://128.61.61.119:5000/' + this.props.chatID + '/get_messages'; 
     fetch(url, 
       {
-        method: 'POST',
-        body: formData
+        method: 'GET',
       }
     )
     .then((response) => response.json())
     .then((responseJson) => {
       if(responseJson['success']) {
-        console.log(responseJson);
-        this.state.messages = responseJson['data']
+        if(responseJson['data'].length > 0) {
+          this.setState({messages:responseJson['data']});
+        } else {
+          this.setState({
+            messages: [
+              {
+                _id: 1,
+                text: 'Hello Group! Send your first message here',
+                createdAt: new Date(Date.UTC(2016, 7, 30, 17, 20, 0)),
+                user: {
+                  _id: 2,
+                  name: 'GroupFinder',
+                  avatar: '',
+                },
+              },
+            ],
+          });
+        }
       }
       else {
         this.setState({ error: responseJson['message'] });
@@ -55,20 +90,39 @@ export default class ChatScreen extends Component {
     })
   }
 
+  onSend(data) {
+    console.log(data[0])
+    var formData = new FormData();
+    formData.append('senderID', this.props.username);
+    formData.append('content', data[0].text);
+    formData.append('time', JSON.stringify(data[0].createdAt));
+    url = 'http://128.61.61.119:5000/' + this.props.chatID + '/create_message';
+    fetch(url, 
+      {
+        method: 'POST',
+        body: formData
+      }
+    )
+    .then((response) => response.json())
+    .then((responseJson) => {
+      if(responseJson['success']) {
+        this.refresh();
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
   render() { 
-    return (  
-      <View style={styles.container}>
-        <NavigationBar 
-          style={styles.navbar}
-          title={'Chat'}
-          height={44}
-          titleColor={'#fff'}
-          backgroundColor={'#004D40'}
-          leftButtonTitle={'Back'}
-          leftButtonTitleColor={'#fff'}
-          onLeftButtonPress={this.onLeftButtonPress.bind(this)}
-        />
-      </View>
+    return ( 
+      <GiftedChat
+        messages={this.state.messages}
+        onSend={this.onSend.bind(this)}
+        user={{
+          _id: this.props.username,
+        }}
+      />
     );
   }
 

@@ -3,6 +3,7 @@ import psycopg2
 import uuid
 import random
 import urlparse
+import string
 
 urlparse.uses_netloc.append("postgres")
 url = urlparse.urlparse("postgres://ehbxolgrxnzbxg:Q_wWyMAWJl2iEFGFaXmK7GyUxG@ec2-54-235-102-235.compute-1.amazonaws.com:5432/d99uk4hl0qtt4l")
@@ -216,7 +217,7 @@ def get_class_meetings_partof(classID, memberID):
     db = connect()
     with db.cursor() as cur:
         try:
-            cur.execute("SELECT classID, title, location, description, starttime, meetingID FROM meetings where meetingID in (SELECT meetingID from meeting_members WHERE meetingID in (SELECT meetingID from meetings where classID=%s) and memberID=%s)", (classID, memberID))
+            cur.execute("SELECT classID, title, location, description, starttime, meetingID, chatID FROM meetings where meetingID in (SELECT meetingID from meeting_members WHERE meetingID in (SELECT meetingID from meetings where classID=%s) and memberID=%s)", (classID, memberID))
             details = cur.fetchall()
             # print details
             stuff = []
@@ -230,7 +231,8 @@ def get_class_meetings_partof(classID, memberID):
                     'location' : item[2],
                     'description' : item[3],
                     'dateJson': item[4],
-                    'meetingID': item[5]
+                    'meetingID': item[5],
+                    'chatID': item[6]
                 })
             return stuff
         except psycopg2.DatabaseError as db_error:
@@ -243,7 +245,7 @@ def get_class_meetings_all(classID):
     db = connect()
     with db.cursor() as cur:
         try:
-            cur.execute("SELECT classID, title, location, description, starttime, meetingID FROM meetings WHERE meetingID in (SELECT meetingID FROM meetings WHERE classID= %s)", (classID,))
+            cur.execute("SELECT classID, title, location, description, starttime, meetingID, chatID FROM meetings WHERE meetingID in (SELECT meetingID FROM meetings WHERE classID= %s)", (classID,))
             details = cur.fetchall()
             # print details
             stuff = []
@@ -254,7 +256,8 @@ def get_class_meetings_all(classID):
                     'location' : item[2],
                     'description' : item[3],
                     'dateJson': item[4],
-                    'meetingID': item[5]
+                    'meetingID': item[5],
+                    'chatID': item[6]
                 })
             return stuff
         except psycopg2.DatabaseError as db_error:
@@ -263,7 +266,6 @@ def get_class_meetings_all(classID):
             return False
 
 def get_class_meetings(classID, memberID):
-    print classID, memberID
     data1 = get_class_meetings_partof(classID, memberID)
     data2 = get_class_meetings_all(classID)
 
@@ -274,8 +276,7 @@ def get_class_meetings(classID, memberID):
                 'message': "Database Error. Please try again later."
             }
         )
-    print data1
-    print data2
+
     data3 = []
     meetings_blacklisted = []
     for i in data1:

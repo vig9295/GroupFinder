@@ -150,10 +150,13 @@ def get_messages(chatID):
             stuff = []
             for item in details:
                 stuff.append({
-                    'messageID' : item[0],
-                    'senderID' : item[1],
-                    'content': item[2],
-                    'utc': item[3],
+                    '_id' : item[0],
+                    'user' : {
+                        '_id': item[1],
+                        'name': item[1],
+                        'avatar': ''
+                    },
+                    'text': item[2],
                 })
 
             return (

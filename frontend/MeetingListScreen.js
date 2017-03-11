@@ -152,7 +152,7 @@ export default class MeetingListScreen extends Component {
     this.props.navigator.push({ 
       screen: 'MeetingScreen',
       passProps: {
-        username: this.state.username,
+        username: this.props.username,
         meetingObj: meetingObj,
         classObj: this.props.classObj
       } 

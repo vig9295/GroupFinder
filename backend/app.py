@@ -7,6 +7,7 @@ import classes
 import meetings
 import members
 import chat
+from pusher import Pusher
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -14,6 +15,13 @@ def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
+
+pusher = Pusher(
+  app_id='312968',
+  key='0aab40d486c9e2ce1c43',
+  secret='43573bfcd05521382472',
+  ssl=True
+)
 
 @app.route('/', methods=['GET'])
 def index():
@@ -203,8 +211,8 @@ def get_chatID(meetingID):
         chat.get_chatID(meetingID)
     )
 
-@app.route('/<string:memberID>/<string:member1ID>/get_chatID', methods=['GET'])
-def get_chatID(memberID, member1ID):
+@app.route('/<string:memberID>/<string:member1ID>/get_chatID2', methods=['GET'])
+def get_chatID2(memberID, member1ID):
     return jsonify (
         chat.get_chatID(memberID, member1ID)
     )
@@ -214,13 +222,13 @@ def create_message(chatID):
     senderID = request.form['senderID']
     content = request.form['content']
     utc = request.form['time']
+    pusher.trigger(chatID, 'new_message', { 'success': True})  
     return jsonify(
-        chat.create_message(chatID, senderID, content, utc):
+        chat.create_message(chatID, senderID, content, utc)
     )
 
 @app.route('/<string:chatID>/get_messages', methods = ['GET'])
 def get_chat(chatID):
->>>>>>> 831f654b4a33b0c2cf9bd21ff26d6513c8daa397
     return jsonify(
         chat.get_messages(chatID)
     )

@@ -38,7 +38,7 @@ export default class CreateMeetingScreen extends Component {
       members: [],
       error: ''
     }
-    url = 'https://group-finder.herokuapp.com/class/' + this.props.classID + '/members';
+    url = 'http://128.61.61.119:5000/class/' + this.props.classID + '/members';
     fetch(url)
     .then((response) => response.json())
     .then((responseJson) => {
@@ -91,7 +91,7 @@ export default class CreateMeetingScreen extends Component {
     members = this.state.members;
     members.push(this.props.username);
     formData.append('memberList', JSON.stringify(members));
-    url = 'https://group-finder.herokuapp.com/create_meetings'
+    url = 'http://128.61.61.119:5000/create_meetings'
     fetch(url, 
       {
         method: 'POST',

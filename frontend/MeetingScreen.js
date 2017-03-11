@@ -32,25 +32,6 @@ export default class MeetingScreen extends Component {
     this.state = { error: '', chatID: '' };
     var formData = new FormData();
     formData.append('meetingID', this.props.meetingObj.meetingID);
-    fetch('http://128.61.61.119:5000/get_chat_id', 
-      {
-        method: 'POST',
-        body: formData
-      }
-    )
-    .then((response) => response.json())
-    .then((responseJson) => {
-      console.log
-      if(responseJson['success']) {
-        this.state.chatID = responseJson['chatID']
-      }
-      else {
-        this.setState({ error: responseJson['message'] });
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    })
   }
 
   render() { 
@@ -91,7 +72,8 @@ export default class MeetingScreen extends Component {
     this.props.navigator.push({ 
       screen: 'ChatScreen',
       passProps: {
-        chatID: this.state.chatID,
+        username: this.props.username, 
+        chatID: this.props.meetingObj.chatID,
       }
     });
   }
