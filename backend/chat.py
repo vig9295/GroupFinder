@@ -99,6 +99,7 @@ def get_chatID(memberID, member1ID):
                 chatID = id_generator(32)
                 cur.execute("INSERT INTO chats (chatID, member1, member2) VALUES (%s, %s, %s)", (chatID, memberID, member1ID))
                 cur.execute("INSERT INTO chats (chatID, member1, member2) VALUES (%s, %s, %s)", (chatID, member1ID, memberID))
+                db.commit()
                 return (
                     {
                         'success': True,

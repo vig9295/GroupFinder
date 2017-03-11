@@ -34,7 +34,6 @@ export default class ChatScreen extends Component {
   constructor(props) {
     super(props);
     this.state = { error: '', messages: [] };
-    console.log(this.props.username);
     this.refresh()
     this.pusher = new Pusher('0aab40d486c9e2ce1c43', {
       encrypted: true
@@ -45,6 +44,7 @@ export default class ChatScreen extends Component {
   componentDidMount() {
     var dude = this;
     this.chatRoom.bind('new_message', function(data) {
+      console.log("asdfasd")
       if(data['success']) {
         dude.refresh();
       }
@@ -96,7 +96,7 @@ export default class ChatScreen extends Component {
     formData.append('senderID', this.props.username);
     formData.append('content', data[0].text);
     formData.append('time', JSON.stringify(data[0].createdAt));
-    url = 'http://128.61.61.119:5000/' + this.props.chatID + '/create_message';
+    url = 'https://group-finder.herokuapp.com/' + this.props.chatID + '/create_message';
     fetch(url, 
       {
         method: 'POST',
@@ -106,7 +106,6 @@ export default class ChatScreen extends Component {
     .then((response) => response.json())
     .then((responseJson) => {
       if(responseJson['success']) {
-        this.refresh();
       }
     })
     .catch((error) => {
