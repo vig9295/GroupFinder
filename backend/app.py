@@ -6,6 +6,7 @@ import random
 import classes
 import meetings
 import members
+import chat
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -196,13 +197,22 @@ def get_meeting_members(meetingID):
     )
 
 @app.route('/get_chat_id', methods=['POST'])
-def add_meeting_members():
+def get_chat_id():
     meetingID = request.form['meetingID']
-    print meetingID
     return jsonify(
         {
-            
+            'success': True, 
+            'chatID': 'hii'
         }
+    )
+
+@app.route('/get_messages', methods=['POST'])
+def get_messages():
+    print "LEL"
+    chatID = request.form['chatID']
+    print chatID
+    return jsonify(
+        chat.get_messages(chatID)
     )
 
 if __name__ == '__main__':

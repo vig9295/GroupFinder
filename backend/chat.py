@@ -115,11 +115,11 @@ def get_messages(chatID):
                 }
             )
 
-print create_chat("hii")
-print create_message('1213', 'hii', 'mil', 'test', '1:00')
-print create_message('11', 'hii', 'mil', 'test', '1:00')
-print create_message('113', 'hii', 'mil', 'test', '1:00')
-print get_messages('hii')
+# print create_chat("hii")
+# print create_message('1213', 'hii', 'mil', 'test', '1:00')
+# print create_message('11', 'hii', 'mil', 'test', '1:00')
+# print create_message('113', 'hii', 'mil', 'test', '1:00')
+# print get_messages('hii')
 
 
 

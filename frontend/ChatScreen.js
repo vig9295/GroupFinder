@@ -22,18 +22,18 @@ import {
 import Cookie from 'react-native-cookie';
 import NavigationBar from 'react-native-navigation-bar';
 import EStyleSheet from 'react-native-extended-stylesheet';
+import { GiftedChat } from 'react-native-gifted-chat';
 
 var width = Dimensions.get('window').width;
 
-export default class MeetingScreen extends Component {
+export default class ChatScreen extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { error: '', chatID: '' };
-    console.log(this.props);
+    this.state = { error: '', messages: '' };
     var formData = new FormData();
-    formData.append('meetingID', this.props.meetingObj.meetingID);
-    url = 'http://128.61.61.119:5000/get_chat_id'; 
+    formData.append('chatID', this.props.chatID);
+    url = 'http://128.61.61.119:5000/get_messages'; 
     fetch(url, 
       {
         method: 'POST',
@@ -43,7 +43,8 @@ export default class MeetingScreen extends Component {
     .then((response) => response.json())
     .then((responseJson) => {
       if(responseJson['success']) {
-        this.state.chatID = responseJson['chatID']
+        console.log(responseJson);
+        this.state.messages = responseJson['data']
       }
       else {
         this.setState({ error: responseJson['message'] });
@@ -59,42 +60,20 @@ export default class MeetingScreen extends Component {
       <View style={styles.container}>
         <NavigationBar 
           style={styles.navbar}
-          title={this.props.meetingObj.title}
+          title={'Chat'}
           height={44}
           titleColor={'#fff'}
           backgroundColor={'#004D40'}
           leftButtonTitle={'Back'}
           leftButtonTitleColor={'#fff'}
           onLeftButtonPress={this.onLeftButtonPress.bind(this)}
-          rightButtonTitle={'Chat'}
-          rightButtonTitleColor={'#fff'}
-          onRightButtonPress={this.onRightButtonPress.bind(this)}
         />
-        <Text style={styles.navmarginhelper}></Text>
-        <Text style={styles.instructions}>Class</Text>
-        <Text>{this.props.classObj.name}</Text>
-        <Text style={styles.instructions}>Date</Text>
-        <Text>{this.props.meetingObj.dateJson}</Text>
-        <Text style={styles.instructions}>Location</Text>
-        <Text>{this.props.meetingObj.location}</Text>
-        <Text style={styles.instructions}>Description</Text>
-        <Text>{this.props.meetingObj.description}</Text>
-
       </View>
     );
   }
 
   onLeftButtonPress() {
     this.props.navigator.pop();
-  }
-
-  onRightButtonPress() {
-    this.props.navigator.push({ 
-      screen: 'ChatScreen',
-      passProps: {
-        chatID: this.props.meetingObj.chatID,
-      }
-    });
   }
 }
 
@@ -147,4 +126,4 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('MeetingListScreen', () => MeetingListScreen);
+AppRegistry.registerComponent('ChatScreen', () => ChatScreen);
