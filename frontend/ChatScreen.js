@@ -45,7 +45,6 @@ export default class ChatScreen extends Component {
   componentDidMount() {
     var dude = this;
     this.chatRoom.bind('new_message', function(data) {
-      console.log("BRO IF WE GOT HERE, FUCK YEAH! ");
       if(data['success']) {
         dude.refresh();
       }
@@ -53,7 +52,7 @@ export default class ChatScreen extends Component {
   }
 
   refresh() {
-    url = 'http://128.61.61.119:5000/' + this.props.chatID + '/get_messages'; 
+    url = 'https://group-finder.herokuapp.com/' + this.props.chatID + '/get_messages'; 
     fetch(url, 
       {
         method: 'GET',

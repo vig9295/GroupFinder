@@ -38,7 +38,7 @@ export default class CreateMeetingScreen extends Component {
       members: [],
       error: ''
     }
-    url = 'http://128.61.61.119:5000/class/' + this.props.classID + '/members';
+    url = 'https://group-finder.herokuapp.com/class/' + this.props.classID + '/members';
     fetch(url)
     .then((response) => response.json())
     .then((responseJson) => {
