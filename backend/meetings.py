@@ -34,7 +34,7 @@ def create_meetings(meetingID, classID, title, location, description, dateJson, 
     with db.cursor() as cur:
 
         chatID = id_generator(32)
-        cur.execute("INSERT INTO chats (chatID) VALUES (%s)", (chatID,))
+        cur.execute("INSERT INTO chats (chatID, member1, member2) VALUES (%s, %s, %s)", (chatID, 'na', 'na'))
         try:
             cur.execute("INSERT INTO meetings (meetingID, classID, title, location, description, starttime, memberID, chatID) VALUES " +
                                                 "(%s, %s, %s, %s, %s, %s, %s, %s)",

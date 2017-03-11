@@ -43,7 +43,6 @@ export default class MeetingListScreen extends Component {
     .then((response) => response.json())
     .then((responseJson) => {
       if(responseJson['success']) {
-        console.log(responseJson)
         const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.setState({
           meetingsPartOf: ds.cloneWithRows(responseJson['data1']), 
@@ -63,7 +62,15 @@ export default class MeetingListScreen extends Component {
       .then((responseJson) => {
         if(responseJson['success']) {
           if(responseJson['data'].length > 0) {
-            this.setState({ classMembers : responseJson['data'] });
+            var data = responseJson['data'];
+            classMembers = []
+            for (var i = 0; i < data.length; i++) {
+              if(data[i].memberID != this.props.username) {
+                classMembers.push(data[i]);
+              }
+            }
+            const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+            this.setState({ classMembers : ds.cloneWithRows(classMembers) });
           }
         }
         else {
@@ -76,7 +83,6 @@ export default class MeetingListScreen extends Component {
   }
 
   render() { 
-
     let meetingsYouArePartOf = null
     if (this.state.meetingsNotPartOf.length == 0) {
       meetingsYouArePartOf = (
@@ -115,9 +121,23 @@ export default class MeetingListScreen extends Component {
         } />
       );
     }
-    var studentList = this.state.classMembers.map(function(student) {
-      return <Text style={styles.smallListItem} key={student.memberID}>{student.name}</Text>
-    });
+
+    if (this.state.classMembers.length == 0) {
+      studentList = (
+         <Text style={styles.instructions}>You have no students in this class</Text>
+      );
+    } else {
+      studentList = (
+        <ListView style={styles.classlist}
+          dataSource={this.state.classMembers}
+          renderRow={(rowData) => 
+            <TouchableHighlight style={styles.classitem} onPress={() => this.onMemberPress(rowData)}>
+              <Text style={styles.classtext}>{rowData['name']}</Text>
+            </TouchableHighlight>
+          } 
+        />
+      );
+    }
     return (  
       <View style={styles.container}>
         <NavigationBar 
@@ -156,6 +176,35 @@ export default class MeetingListScreen extends Component {
         meetingObj: meetingObj,
         classObj: this.props.classObj
       } 
+    });
+  }
+
+  onMemberPress(memberObj) {
+    var formData = new FormData();
+    formData.append('memberID', this.props.username);
+    formData.append('member1ID', memberObj.memberID);
+    url = 'http://128.61.61.119:5000/get_chatID2';
+    fetch(url, {
+      method: 'POST',
+      body: formData
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+      if(responseJson['success']) {
+        this.props.navigator.push({ 
+          screen: 'ChatScreen',
+          passProps: {
+            username: this.props.username, 
+            chatID: responseJson['chatID']
+          }
+        });
+      }
+      else {
+        this.setState({ error: responseJson['message'] });
+      }
+    })
+    .catch((error) => {
+      console.error(error);
     });
   }
 

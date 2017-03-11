@@ -211,8 +211,10 @@ def get_chatID(meetingID):
         chat.get_chatID(meetingID)
     )
 
-@app.route('/<string:memberID>/<string:member1ID>/get_chatID2', methods=['GET'])
-def get_chatID2(memberID, member1ID):
+@app.route('/get_chatID2', methods=['POST'])
+def get_chatID2():
+    memberID = request.form['memberID']
+    member1ID = request.form['member1ID']
     return jsonify (
         chat.get_chatID(memberID, member1ID)
     )

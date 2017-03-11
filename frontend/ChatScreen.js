@@ -62,13 +62,14 @@ export default class ChatScreen extends Component {
     .then((responseJson) => {
       if(responseJson['success']) {
         if(responseJson['data'].length > 0) {
+          console.log(responseJson['data']);
           this.setState({messages:responseJson['data']});
         } else {
           this.setState({
             messages: [
               {
                 _id: 1,
-                text: 'Hello Group! Send your first message here',
+                text: 'Hello! Send your first message here',
                 createdAt: new Date(Date.UTC(2016, 7, 30, 17, 20, 0)),
                 user: {
                   _id: 2,

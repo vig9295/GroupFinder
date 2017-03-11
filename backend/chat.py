@@ -86,19 +86,19 @@ def get_chatID(memberID, member1ID):
 
     with db.cursor() as cur:
         try:
-            cur.execute("SELECT chatID FROM chats WHERE member1ID = %s AND member2ID", (member1ID, member2ID))
+            cur.execute("SELECT chatID FROM chats WHERE member1 = %s AND member2 = %s", (memberID, member1ID))
             details = cur.fetchall()
             if details:
                 return (
                     {
                         'success': True,
-                        'chatID' : chat[0][0]
+                        'chatID' : details[0][0]
                     }
                 )
             else:
                 chatID = id_generator(32)
-                cur.execute("INSERT INTO chats (chatID, member1ID, member2ID) VALUES (%s, %s, %s)", (chatID, memberID, member1ID))
-                cur.execute("INSERT INTO chats (chatID, member1ID, member2ID) VALUES (%s, %s, %s)", (chatID, member1ID, memberID))
+                cur.execute("INSERT INTO chats (chatID, member1, member2) VALUES (%s, %s, %s)", (chatID, memberID, member1ID))
+                cur.execute("INSERT INTO chats (chatID, member1, member2) VALUES (%s, %s, %s)", (chatID, member1ID, memberID))
                 return (
                     {
                         'success': True,
