@@ -22,6 +22,9 @@ import {
 import Cookie from 'react-native-cookie';
 import NavigationBar from 'react-native-navigation-bar';
 import EStyleSheet from 'react-native-extended-stylesheet';
+import { FilePickerManager } from 'NativeModules';
+import RNFetchBlob from 'react-native-fetch-blob';
+
 
 var width = Dimensions.get('window').width;
 
@@ -59,6 +62,11 @@ export default class MeetingScreen extends Component {
         <Text>{this.props.meetingObj.location}</Text>
         <Text style={styles.instructions}>Description</Text>
         <Text>{this.props.meetingObj.description}</Text>
+        <Button
+          style={{fontSize: 40}}
+          title="Upload Documents"
+          onPress={this.onUploadPress.bind(this)}
+        />
 
       </View>
     );
@@ -74,6 +82,38 @@ export default class MeetingScreen extends Component {
       passProps: {
         username: this.props.username, 
         chatID: this.props.meetingObj.chatID,
+      }
+    });
+  }
+
+  onUploadPress() {
+    FilePickerManager.showFilePicker(null, (response) => {
+      console.log('Response = ', response);
+
+      if (response.didCancel) {
+        console.log('User cancelled file picker');
+      }
+      else if (response.error) {
+        console.log('FilePickerManager Error: ', response.error);
+      }
+      else {
+        RNFetchBlob.fetch('POST', 'https://content.dropboxapi.com/2/files/upload', {
+          // dropbox upload headers
+          Authorization : "Bearer nulQVf3lvTcAAAAAAAACZkhOkppiIWpAX6t1vFMd2S31fjm9nnXalrogOljJwmol",
+          'Dropbox-API-Arg': JSON.stringify({
+            path : response.path,
+            mode : 'add',
+            autorename : true,
+            mute : false
+          }),
+          'Content-Type' : 'application/octet-stream',
+        }, RNFetchBlob.wrap(response.path))
+        .then((res) => {
+          console.log(res.text())
+        })
+        .catch((err) => {
+          // error handling ..
+        })
       }
     });
   }
