@@ -32,15 +32,56 @@ export default class MeetingScreen extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { error: '', chatID: '' };
+    this.state = { error: '', chatID: '', data: [] };
     var formData = new FormData();
     formData.append('meetingID', this.props.meetingObj.meetingID);
+    fetch('https://group-finder.herokuapp.com/' + this.props.meetingObj.meetingID + '/get_documents',
+      {
+        method: 'GET'
+      }
+    )
+    .then((response) => response.json())
+    .then((responseJson) => {
+      if(responseJson['success']) {
+        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        this.setState({
+          data: ds.cloneWithRows(responseJson['data'])
+        });
+      }
+      else {
+        this.setState({ error: responseJson['message'] });
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+
+
   }
 
-  render() { 
-    return (  
+  render() {
+    let listData = null;
+    if (this.state.data.length == 0) {
+      listData = (
+        <TouchableHighlight>
+          <Text>Bruh</Text>
+        </TouchableHighlight>
+      )
+    } else {
+      listData = (
+        <ListView
+        dataSource={this.state.data}
+        renderRow={(rowData) =>
+          <TouchableHighlight onPress={() => this.onDownloadPress(rowData)}>
+            <Text>{rowData['name']}</Text>
+          </TouchableHighlight>
+        } />
+      )
+    }
+
+    return (
       <View style={styles.container}>
-        <NavigationBar 
+        <NavigationBar
           style={styles.navbar}
           title={this.props.meetingObj.title}
           height={44}
@@ -62,6 +103,9 @@ export default class MeetingScreen extends Component {
         <Text>{this.props.meetingObj.location}</Text>
         <Text style={styles.instructions}>Description</Text>
         <Text>{this.props.meetingObj.description}</Text>
+
+        { listData }
+
         <Button
           style={{fontSize: 40}}
           title="Upload Documents"
@@ -77,14 +121,48 @@ export default class MeetingScreen extends Component {
   }
 
   onRightButtonPress() {
-    this.props.navigator.push({ 
+    this.props.navigator.push({
       screen: 'ChatScreen',
       passProps: {
-        username: this.props.username, 
+        username: this.props.username,
         chatID: this.props.meetingObj.chatID,
       }
     });
   }
+
+
+  onDownloadPress(documentData) {
+
+    let dirs = RNFetchBlob.fs.dirs;
+    console.log(dirs.DownloadDir);
+    RNFetchBlob
+    .config({
+      // add this option that makes response data to be stored as a file,
+      // this is much more performant.
+      path : '/storage/emulated/0/DCIM/Camera/sprint3-demo.jpg'
+
+
+    })
+    .fetch('GET', 'https://content.dropboxapi.com/2/files/download', {
+      Authorization : 'Bearer nulQVf3lvTcAAAAAAAACZkhOkppiIWpAX6t1vFMd2S31fjm9nnXalrogOljJwmol',
+      'Dropbox-API-Arg': JSON.stringify({
+        path : documentData.path,
+        mode : 'add',
+        autorename : true,
+      }),
+    })
+    .then((res) => {
+      // the temp file path
+      console.log("Download complete")
+    })
+    .catch((errorMessage, statusCode) => {
+      console.log(errorMessage);
+
+      // error handling
+    })
+
+  }
+
 
   onUploadPress() {
     FilePickerManager.showFilePicker(null, (response) => {
@@ -109,8 +187,32 @@ export default class MeetingScreen extends Component {
           'Content-Type' : 'application/octet-stream',
         }, RNFetchBlob.wrap(response.path))
         .then((res) => {
-          console.log(res.text())
+          var responseData = res.json();
+          console.log(responseData);
+          var newformData = new FormData();
+          newformData.append('meetingID', this.props.meetingObj.meetingID);
+          newformData.append('name', responseData.name);
+          newformData.append('path', responseData.path_lower);
+          fetch('https://group-finder.herokuapp.com/upload_document',
+            {
+              method: 'POST',
+              body: newformData
+            }
+          )
+          .then((response) => response.json())
+          .then((responseJson) => {
+            if(responseJson['success']) {
+
+            }
+            else {
+
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+          });
         })
+
         .catch((err) => {
           // error handling ..
         })

@@ -7,6 +7,7 @@ import classes
 import meetings
 import members
 import chat
+import documents
 from pusher import Pusher
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
@@ -224,7 +225,7 @@ def create_message(chatID):
     senderID = request.form['senderID']
     content = request.form['content']
     utc = request.form['time']
-    pusher.trigger(chatID, 'new_message', { 'success': True})  
+    pusher.trigger(chatID, 'new_message', { 'success': True})
     return jsonify(
         chat.create_message(chatID, senderID, content, utc)
     )
@@ -237,13 +238,27 @@ def get_chat(chatID):
 
 @app.route('/upload_document', methods=['POST'])
 def upload_document():
-    print request.form.get('data')
+    documentID = id_generator(32)
+    meetingID = request.form['meetingID']
+    name = request.form['name']
+    path = request.form['path']
     return jsonify (
-        {
-            'success': True
-        }
+        documents.upload_document(documentID, meetingID, name, path)
     )
 
+@app.route('/<string:meetingID>/get_documents', methods=['GET'])
+def get_documents(meetingID):
+    return jsonify (
+        documents.get_documents(meetingID)
+    )
+
+
+#Don't think this is necessary
+# @app.route('/<string:documentID>/get_document_url', methods=['POST'])
+# def get_document_url(documentID):
+#     return jsonify (
+#         documents.get_document_url(documentID)
+#     )
 
 if __name__ == '__main__':
   port = int(os.environ.get('PORT', 5000))

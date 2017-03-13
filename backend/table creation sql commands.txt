@@ -12,10 +12,7 @@ CREATE TABLE chats (chatID TEXT PRIMARY KEY NOT NULL, member1 TEXT NOT NULL, mem
 
 CREATE TABLE messages (messageID SERIAL PRIMARY KEY NOT NULL, chatID TEXT NOT NULL, senderID TEXT NOT NULL, content TEXT NOT NULL, utc TEXT NOT NULL);
 
-
-chats chatID(key, autoincrement), chatdetails
-chatmembers chatID(key) member1 & member2(key)
-messages messageID(key), chatID, senderID, content, utc
+CREATE TABLE documents(documentID TEXT PRIMARY KEY NOT NULL, meetingID TEXT NOT NULL, name TEXT NOT NULL, path text NOT NULL);
 
 
 functions to check

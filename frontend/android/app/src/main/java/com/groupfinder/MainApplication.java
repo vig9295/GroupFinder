@@ -11,6 +11,8 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import com.RNFetchBlob.RNFetchBlobPackage;
+import com.rnfs.RNFSPackage;
+
 
 
 import com.filepicker.FilePickerPackage;
@@ -32,7 +34,9 @@ public class MainApplication extends Application implements ReactApplication {
           new MainReactPackage(),
             new CookieManagerPackage(),
             new FilePickerPackage(),
-              new RNFetchBlobPackage()
+              new RNFetchBlobPackage(),
+              new RNFSPackage()
+
       );
     }
   };

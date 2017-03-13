@@ -45,7 +45,7 @@ export default class MeetingListScreen extends Component {
       if(responseJson['success']) {
         const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.setState({
-          meetingsPartOf: ds.cloneWithRows(responseJson['data1']), 
+          meetingsPartOf: ds.cloneWithRows(responseJson['data1']),
           meetingsNotPartOf: ds.cloneWithRows(responseJson['data2'])
         });
       }
@@ -82,7 +82,7 @@ export default class MeetingListScreen extends Component {
       });
   }
 
-  render() { 
+  render() {
     let meetingsYouArePartOf = null
     if (this.state.meetingsNotPartOf.length == 0) {
       meetingsYouArePartOf = (
@@ -94,7 +94,7 @@ export default class MeetingListScreen extends Component {
       meetingsYouArePartOf = (
         <ListView style={styles.classlist}
         dataSource={this.state.meetingsPartOf}
-        renderRow={(rowData) => 
+        renderRow={(rowData) =>
           <TouchableHighlight style={styles.classitem} onPress={() => this.onMeetingPress(rowData)}>
             <Text style={styles.classtext}>{rowData['title']}</Text>
           </TouchableHighlight>
@@ -114,7 +114,7 @@ export default class MeetingListScreen extends Component {
       meetingsNotPartOf = (
         <ListView style={styles.classlist}
         dataSource={this.state.meetingsNotPartOf}
-        renderRow={(rowData) => 
+        renderRow={(rowData) =>
           <TouchableHighlight style={styles.classitem} onPress={() => this.onMeetingPress(rowData)}>
             <Text style={styles.classtext}>{rowData['title']}</Text>
           </TouchableHighlight>
@@ -130,17 +130,17 @@ export default class MeetingListScreen extends Component {
       studentList = (
         <ListView style={styles.classlist}
           dataSource={this.state.classMembers}
-          renderRow={(rowData) => 
+          renderRow={(rowData) =>
             <TouchableHighlight style={styles.classitem} onPress={() => this.onMemberPress(rowData)}>
               <Text style={styles.classtext}>{rowData['name']}</Text>
             </TouchableHighlight>
-          } 
+          }
         />
       );
     }
-    return (  
+    return (
       <View style={styles.container}>
-        <NavigationBar 
+        <NavigationBar
           style={styles.navbar}
           title={'Meeting List'}
           height={44}
@@ -169,13 +169,13 @@ export default class MeetingListScreen extends Component {
   }
 
   onMeetingPress(meetingObj) {
-    this.props.navigator.push({ 
+    this.props.navigator.push({
       screen: 'MeetingScreen',
       passProps: {
         username: this.props.username,
         meetingObj: meetingObj,
         classObj: this.props.classObj
-      } 
+      }
     });
   }
 
@@ -183,7 +183,7 @@ export default class MeetingListScreen extends Component {
     var formData = new FormData();
     formData.append('memberID', this.props.username);
     formData.append('member1ID', memberObj.memberID);
-    url = 'http://128.61.61.119:5000/get_chatID2';
+    url = 'https://group-finder.herokuapp.com/get_chatID2';
     fetch(url, {
       method: 'POST',
       body: formData
@@ -191,10 +191,10 @@ export default class MeetingListScreen extends Component {
     .then((response) => response.json())
     .then((responseJson) => {
       if(responseJson['success']) {
-        this.props.navigator.push({ 
+        this.props.navigator.push({
           screen: 'ChatScreen',
           passProps: {
-            username: this.props.username, 
+            username: this.props.username,
             chatID: responseJson['chatID']
           }
         });
@@ -209,10 +209,10 @@ export default class MeetingListScreen extends Component {
   }
 
   onAddGroup() {
-    this.props.navigator.push({ 
+    this.props.navigator.push({
       screen: 'CreateMeetingScreen',
       passProps: {
-        username: this.props.username, 
+        username: this.props.username,
         classID: this.props.classObj.classID
       }
     });
