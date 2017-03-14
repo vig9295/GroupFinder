@@ -73,7 +73,7 @@ export default class MeetingScreen extends Component {
         dataSource={this.state.data}
         renderRow={(rowData) =>
           <TouchableHighlight onPress={() => this.onDownloadPress(rowData)}>
-            <Text>{rowData['name']}</Text>
+            <Text style={styles.detailtext}>{rowData['name']}</Text>
           </TouchableHighlight>
         } />
       )
@@ -94,23 +94,38 @@ export default class MeetingScreen extends Component {
           rightButtonTitleColor={'#fff'}
           onRightButtonPress={this.onRightButtonPress.bind(this)}
         />
-        <Text style={styles.navmarginhelper}></Text>
-        <Text style={styles.instructions}>Class</Text>
-        <Text>{this.props.classObj.name}</Text>
-        <Text style={styles.instructions}>Date</Text>
-        <Text>{this.props.meetingObj.dateJson}</Text>
-        <Text style={styles.instructions}>Location</Text>
-        <Text>{this.props.meetingObj.location}</Text>
-        <Text style={styles.instructions}>Description</Text>
-        <Text>{this.props.meetingObj.description}</Text>
 
-        { listData }
-
-        <Button
-          style={{fontSize: 40}}
-          title="Upload Documents"
-          onPress={this.onUploadPress.bind(this)}
-        />
+        <View style={styles.meetingcontainer}>
+          <Text style={styles.navmarginhelper}></Text>
+          <View style={styles.sectioncontainer}>
+            <Text style={styles.detailtext}>{this.props.classObj.name}</Text>
+            <Text style={styles.detailtitle}>Class</Text>
+          </View>
+          <View style={styles.sectioncontainer}>
+            <Text style={styles.detailtext}>{this.props.meetingObj.dateJson}</Text>
+            <Text style={styles.detailtitle}>Date</Text>
+          </View>
+          <View style={styles.sectioncontainer}>
+            <Text style={styles.detailtext}>{this.props.meetingObj.location}</Text>
+            <Text style={styles.detailtitle}>Location</Text>
+          </View>
+          <View style={styles.sectioncontainer}>
+            <Text style={styles.detailtext}>{this.props.meetingObj.description}</Text>
+            <Text style={styles.detailtitle}>Description</Text>
+          </View>
+          <View style={styles.sectioncontainer}>
+            { listData }
+            <Text style={styles.detailtitle}>Documents</Text>
+          </View>
+          <Text />
+          <View style={styles.simplebutton}>
+            <Button
+              style={styles.simplebutton}
+              title="Upload Documents"
+              onPress={this.onUploadPress.bind(this)}
+            />
+          </View>
+        </View>
 
       </View>
     );
@@ -126,6 +141,7 @@ export default class MeetingScreen extends Component {
       passProps: {
         username: this.props.username,
         chatID: this.props.meetingObj.chatID,
+        title: this.props.title
       }
     });
   }
@@ -225,9 +241,19 @@ const styles = StyleSheet.create({
   container: {
     //flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#F5FCFF',
-    flexDirection: 'column'
+    flexDirection: 'column',
+  },
+  sectioncontainer: {
+    paddingLeft: 24,
+    paddingRight: 24,
+    paddingBottom: 16,
+    paddingTop: 8,
+  },
+  simplebutton: {
+    paddingTop: 20,
+    marginRight: 75,
+    marginLeft: 75
   },
   classlist: {
     marginTop: 44
@@ -251,7 +277,7 @@ const styles = StyleSheet.create({
     fontSize: 25
   },
   navmarginhelper: {
-  	marginBottom:44
+  	marginBottom: 55
   },
   navbar: {
     //and here's where I would put my styles
@@ -262,12 +288,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     margin: 10,
   },
-  instructions: {
-    marginTop: 15,
-    textAlign: 'center',
-    color: '#333333',
+  detailtitle: {
     marginBottom: 5,
+    fontSize: 15
   },
+  detailtext: {
+    color: '#333333',
+    fontSize: 22
+  }
 });
 
 AppRegistry.registerComponent('MeetingListScreen', () => MeetingListScreen);

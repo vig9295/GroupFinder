@@ -39,14 +39,14 @@ export default class ChatScreen extends Component {
       encrypted: true
     });
     this.chatRoom = this.pusher.subscribe(this.props.chatID);
+    this.state.rendered = false;
   }
 
   componentDidMount() {
-    var dude = this;
+    var curr = this;
     this.chatRoom.bind('new_message', function(data) {
-      console.log("asdfasd")
       if(data['success']) {
-        dude.refresh();
+        curr.refresh();
       }
     });
   }
@@ -114,14 +114,29 @@ export default class ChatScreen extends Component {
   }
 
   render() { 
-    return ( 
-      <GiftedChat
-        messages={this.state.messages}
-        onSend={this.onSend.bind(this)}
-        user={{
-          _id: this.props.username,
-        }}
-      />
+    console.log(this.props);
+    return (
+      <View style={styles.container}>
+        <GiftedChat
+          messages={this.state.messages}
+          onSend={this.onSend.bind(this)}
+          user={{
+            _id: this.props.username,
+          }}
+        />
+        <NavigationBar
+          style={styles.navbar}
+          title={this.props.title}
+          height={44}
+          titleColor={'#fff'}
+          backgroundColor={'#004D40'}
+          leftButtonTitle={'Back'}
+          leftButtonTitleColor={'#fff'}
+          onLeftButtonPress={this.onLeftButtonPress.bind(this)}
+          rightButtonTitle={'Menu'}
+          rightButtonTitleColor={'#fff'}
+        />
+      </View>
     );
   }
 
@@ -132,9 +147,7 @@ export default class ChatScreen extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    //flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    flex: 2,
     backgroundColor: '#F5FCFF',
     flexDirection: 'column'
   },

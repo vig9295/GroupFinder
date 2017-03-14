@@ -174,8 +174,7 @@ export default class MeetingListScreen extends Component {
       passProps: {
         username: this.props.username,
         meetingObj: meetingObj,
-        classObj: this.props.classObj
-      }
+        classObj: this.props.classObj      }
     });
   }
 
@@ -194,6 +193,7 @@ export default class MeetingListScreen extends Component {
         this.props.navigator.push({
           screen: 'ChatScreen',
           passProps: {
+            title: memberObj.name,
             username: this.props.username,
             chatID: responseJson['chatID']
           }
