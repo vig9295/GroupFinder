@@ -8,6 +8,9 @@ import meetings
 import members
 import chat
 import documents
+import meeting_requests
+import email_sender
+import reminder
 from pusher import Pusher
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
@@ -49,6 +52,21 @@ def register():
 	return jsonify(
 		members.add_member(memberID, name, password)
 	)
+
+@app.route('/ban_member', methods=['POST'])
+def ban_member():
+	memberID = request.form['username']
+	return jsonify(
+		members.ban_member(memberID)
+	)
+
+@app.route('/unban_member', methods=['POST'])
+def unban_member():
+	memberID = request.form['username']
+	return jsonify(
+		members.unban_member(memberID)
+	)
+
 
 @app.route('/create_class', methods=['POST'])
 def create_class():
@@ -253,6 +271,68 @@ def get_documents(meetingID):
     )
 
 
+@app.route('/request_to_join_meeting', methods=['POST'])
+def request_to_join_meeting():
+    meetingID = request.form['meetingID']
+    memberID = request.form['memberID']
+    return jsonify (
+        meeting_requests.add_meeting_members_request(meetingID, memberID)
+    )
+
+@app.route('/accept_meeting_request', methods=['POST'])
+def accept_meeting_request():
+    meetingID = request.form['meetingID']
+    memberID = request.form['memberID']
+    return jsonify (
+        meeting_requests.accept_request(meetingID, memberID)
+    )
+
+
+@app.route('/ignore_meeting_request', methods=['POST'])
+def ignore_meeting_request():
+    meetingID = request.form['meetingID']
+    memberID = request.form['memberID']
+    return jsonify (
+        meeting_requests.ignore_request(meetingID, memberID)
+    )
+
+@app.route('/get_requests', methods=['POST'])
+def get_requests():
+    adminID = request.form['adminID']
+    return jsonify (
+        meeting_requests.get_requests(adminID)
+    )
+
+@app.route('/send_report', methods=['POST'])
+def send_report():
+    reporter_id = request.form['reporterID']
+    reported_id = request.form['reportedID']
+    reason = request.form['reason']
+    return jsonify (
+        email_sender.send_mail_to_admin("User" + reporter_id + "reports user" + reported_id + "for" + reason)
+    )
+    #TODO to ban that user?
+
+
+@app.route('/<string:meetingID>/send_reminders', methods=['GET'])
+def send_reminders(meetingID):
+    return jsonify (
+        reminder.send_reminders(meetingID)
+    )
+
+@app.route('/acknowledge_reminder', methods=['POST'])
+def acknowledge_reminder():
+    memberID = request.form['memberID']
+    meetingID = request.form['meetingID']
+    return jsonify (
+        reminder.acknowledge_reminder(memberID, meetingID)
+    )
+
+@app.route('/<string:memberID>/receive_reminders', methods=['GET'])
+def receive_reminders(memberID):
+    return jsonify (
+        reminder.receive_reminders(memberID)
+    )
 #Don't think this is necessary
 # @app.route('/<string:documentID>/get_document_url', methods=['POST'])
 # def get_document_url(documentID):

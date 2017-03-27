@@ -64,24 +64,31 @@ def check_member(username, password):
 
     with db.cursor() as cur:
         try:
-            cur.execute("SELECT password FROM members WHERE memberID = %s", (username, ))
+            cur.execute("SELECT password, is_banned FROM members WHERE memberID = %s", (username, ))
             details = cur.fetchall()
             if (len(details) == 1):
-
-                if (details[0][0] == password):
-                    return (
-                        {
-                            'success': True,
-                            'message': 'Logged in successfully'
-                        }
-                    )
-                else:
+                if (details[0][1]):
                     return (
                         {
                             'success': False,
-                            'message': 'Password incorrect'
+                            'message': 'User is currently banned'
                         }
                     )
+                else:
+                    if (details[0][0] == password):
+                        return (
+                            {
+                                'success': True,
+                                'message': 'Logged in successfully'
+                            }
+                        )
+                    else:
+                        return (
+                            {
+                                'success': False,
+                                'message': 'Password incorrect'
+                            }
+                        )
             else:
                 return (
                     {
@@ -96,5 +103,57 @@ def check_member(username, password):
                 {
                     'success': False,
                     'message': 'Database error'
+                }
+            )
+
+
+#Bans a specific user
+def ban_member(memberID):
+    db = connect()
+
+    with db.cursor() as cur:
+        try:
+            cur.execute("UPDATE members SET is_banned = true WHERE memberID = %s", (memberID,))
+        except psycopg2.DatabaseError as db_error:
+            db.rollback()
+            print str(db_error)
+            return (
+                {
+                    'success': False,
+                    'message': 'Unable to perform DB Task'
+                }
+            )
+        else:
+            db.commit()
+            return (
+                {
+                    'success': True,
+                    'message': 'Banned successfully'
+                }
+            )
+
+
+#Unbans a specific user
+def unban_member(memberID):
+    db = connect()
+
+    with db.cursor() as cur:
+        try:
+            cur.execute("UPDATE members SET is_banned = false WHERE memberID = %s", (memberID,))
+        except psycopg2.DatabaseError as db_error:
+            db.rollback()
+            print str(db_error)
+            return (
+                {
+                    'success': False,
+                    'message': 'Unable to perform DB Task'
+                }
+            )
+        else:
+            db.commit()
+            return (
+                {
+                    'success': True,
+                    'message': 'Unbanned successfully'
                 }
             )

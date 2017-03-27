@@ -1,4 +1,5 @@
 CREATE TABLE members(memberID TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, major TEXT, year TEXT, location TEXT, info TEXT , password TEXT NOT NULL);
+ALTER table members ADD COLUMN is_banned bool NOT NULL default false;
 
 CREATE TABLE classes(classID TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, leader TEXT NOT NULL, type TEXT);
 
@@ -7,6 +8,7 @@ CREATE TABLE class_members (classID TEXT NOT NULL, memberID TEXT NOT NULL, PRIMA
 CREATE TABLE meetings (meetingID TEXT NOT NULL PRIMARY KEY, classID TEXT NOT NULL, title TEXT NOT NULL, location TEXT NOT NULL, starttime TEXT NOT NULL, description TEXT NOT NULL, memberID TEXT NOT NULL, chatID TEXT NOT NULL);
 
 CREATE TABLE meeting_members (meetingID TEXT NOT NULL, memberID TEXT NOT NULL, PRIMARY KEY(meetingID, memberID));
+ALTER table meeting_members ADD COLUMN to_remind bool NOT NULL default false;
 
 CREATE TABLE chats (chatID TEXT PRIMARY KEY NOT NULL, member1 TEXT NOT NULL, member2 TEXT NOT NULL);
 
@@ -14,26 +16,4 @@ CREATE TABLE messages (messageID SERIAL PRIMARY KEY NOT NULL, chatID TEXT NOT NU
 
 CREATE TABLE documents(documentID TEXT PRIMARY KEY NOT NULL, meetingID TEXT NOT NULL, name TEXT NOT NULL, path text NOT NULL);
 
-
-functions to check
-  get_class_meetings
-  create_meetings
-  edit_meeting_location
-  edit_meeting_title
-  edit_meeting_description
-  edit_meeting_date
-  add_meeting_members
-  get_meeting_members
-
-
-
-update meetings with chatID
-    evertime create meeting - chatID is created
-
-getchatID(meetingID)
-get_chatID(2members)
-    if not there, create one
-
-get_messages(chatID)
-
-create_message(chatID, senderID, content, utc)
+CREATE TABLE meeting_members_requested (meetingID TEXT NOT NULL, memberID TEXT NOT NULL, PRIMARY KEY(meetingID, memberID));

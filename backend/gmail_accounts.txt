@@ -1,0 +1,5 @@
+username = 'csjuniordesigngatech@gmail.com'
+password = 'groupFinder123'
+
+username = 'groupfindergatech@gmail.com'
+password = 'groupFinder123'
