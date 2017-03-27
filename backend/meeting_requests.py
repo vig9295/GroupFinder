@@ -102,9 +102,22 @@ def get_requests(adminID):
             details = cur.fetchall()
             stuff = []
             for item in details:
+                cur.execute("SELECT name from members WHERE memberID = %s", (item[0], ))
+                memberName = cur.fetchall()[0][0]
+
+                cur.execute("SELECT title, classID from meetings WHERE meetingID = %s", (item[1], ))
+                fetchData = cur.fetchall()[0]
+                title = fetchData[0]
+                classID = fetchData[1]
+                cur.execute("SELECT name from classes WHERE classID = %s", (classID, ))
+                className = cur.fetchall()[0][0]
                 stuff.append({
                     'memberID' : item[0],
-                    'meetingID' : item[1]
+                    'meetingID' : item[1],
+                    'memberName' : memberName,
+                    'meetingTitle' : title,
+                    'className' : className,
+                    'classID' : classID
                 })
             return (
                 {

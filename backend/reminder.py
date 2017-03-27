@@ -67,7 +67,7 @@ def receive_reminders(memberID):
     db = connect()
     with db.cursor() as cur:
         try:
-            cur.execute("SELECT classID, title, location, starttime, description FROM meetings WHERE meetingID in (SELECT meetingID FROM meeting_members WHERE memberID= %s AND to_remind = true)", (memberID,))
+            cur.execute("SELECT classID, title, location, starttime, description, meetingID FROM meetings WHERE meetingID in (SELECT meetingID FROM meeting_members WHERE memberID= %s AND to_remind = true)", (memberID,))
             details = cur.fetchall()
             stuff = []
             for item in details:
@@ -78,7 +78,8 @@ def receive_reminders(memberID):
                     'title' : item[1],
                     'location' : item[2],
                     'starttime' : item[3],
-                    'description' : item[4]
+                    'description' : item[4],
+                    'meetingID' : item[5]
                 })
             return (
                 {
