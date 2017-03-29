@@ -11,6 +11,7 @@ import documents
 import meeting_requests
 import email_sender
 import reminder
+import helper
 from pusher import Pusher
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
@@ -275,6 +276,8 @@ def get_documents(meetingID):
 def request_to_join_meeting():
     meetingID = request.form['meetingID']
     memberID = request.form['memberID']
+    adminID = helper.getAdminID(meetingID)
+    #TODO
     return jsonify (
         meeting_requests.add_meeting_members_request(meetingID, memberID)
     )
@@ -316,6 +319,10 @@ def send_report():
 
 @app.route('/<string:meetingID>/send_reminders', methods=['GET'])
 def send_reminders(meetingID):
+    for member in get_meeting_members(meetingID)['data']:
+        pass
+        #TODO this has three elements - ..
+
     return jsonify (
         reminder.send_reminders(meetingID)
     )
