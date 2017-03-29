@@ -49,7 +49,8 @@ def register():
 	memberID = request.form.get('username')
 	name = request.form.get('name')
 	password = request.form.get('password')
-	print memberID, name, password
+    email = request.form.get('email')
+    location = request.form.get('location')
 	return jsonify(
 		members.add_member(memberID, name, password)
 	)

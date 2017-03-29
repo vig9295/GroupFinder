@@ -28,17 +28,17 @@ def connect():
 #Adds a member to the ID, this will contain the memberID, details and the password
 #Rating System not to be implemented, because it was suggested not to in the user
 #feedback
-def add_member(memberID, name, password):
-    return add_member_helper(memberID, name, 'ME', '4', 'South Ave', 'test', password)
+def add_member(memberID, name, password, email, location):
+    return add_member_helper(memberID, name, 'ME', '4', location, 'test', password, email)
 
-def add_member_helper(memberID, name, major, year, location, info, password):
+def add_member_helper(memberID, name, major, year, location, info, password, email):
     db = connect()
 
     with db.cursor() as cur:
         try:
-            cur.execute("INSERT INTO members (memberID, name, major, year, location, info, password) VALUES " +
-                                                "(%s, %s, %s, %s, %s, %s, %s)",
-                                            (memberID, name, major, year, location, info, password))
+            cur.execute("INSERT INTO members (memberID, name, major, year, location, info, password, email) VALUES " +
+                                                "(%s, %s, %s, %s, %s, %s, %s, %s)",
+                                            (memberID, name, major, year, location, info, password, email))
         except psycopg2.DatabaseError as db_error:
             db.rollback()
             print str(db_error)
