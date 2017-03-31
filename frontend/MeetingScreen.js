@@ -24,11 +24,18 @@ import NavigationBar from 'react-native-navigation-bar';
 import EStyleSheet from 'react-native-extended-stylesheet';
 import { FilePickerManager } from 'NativeModules';
 import RNFetchBlob from 'react-native-fetch-blob';
+import ActionButton from 'react-native-action-button';
+import Icon from 'react-native-vector-icons/Ionicons';
+
 
 
 var width = Dimensions.get('window').width;
 
 export default class MeetingScreen extends Component {
+  
+  static contextTypes = {
+      notifications: React.PropTypes.number
+  };
 
   constructor(props) {
     super(props);
@@ -79,20 +86,22 @@ export default class MeetingScreen extends Component {
       )
     }
 
+    notificationText = "Alert (" + this.context.notifications + ")"; 
+    icon = (<Icon name="ios-add" style={styles.actionButtonIcon} />);
     return (
       <View style={styles.container}>
         <NavigationBar
           style={styles.navbar}
-          title={this.props.meetingObj.title}
+          title={'Meeting List'}
           height={44}
           titleColor={'#fff'}
           backgroundColor={'#004D40'}
           leftButtonTitle={'Back'}
           leftButtonTitleColor={'#fff'}
           onLeftButtonPress={this.onLeftButtonPress.bind(this)}
-          rightButtonTitle={'Chat'}
+          rightButtonTitle={notificationText}
           rightButtonTitleColor={'#fff'}
-          onRightButtonPress={this.onRightButtonPress.bind(this)}
+          onRightButtonPress={ this.onNotificationPress.bind(this)}
         />
 
         <View style={styles.meetingcontainer}>
@@ -126,16 +135,24 @@ export default class MeetingScreen extends Component {
             />
           </View>
         </View>
-
+        <ActionButton
+          icon = {icon}
+          buttonColor="rgba(231,76,60,1)"
+          onPress={() => { this.onChatButtonPress()}}
+        />
       </View>
     );
+  }
+
+  onNotificationPress() {
+    //todo
   }
 
   onLeftButtonPress() {
     this.props.navigator.pop();
   }
 
-  onRightButtonPress() {
+  onChatButtonPress() {
     this.props.navigator.push({
       screen: 'ChatScreen',
       passProps: {
@@ -243,6 +260,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#F5FCFF',
     flexDirection: 'column',
+  },
+  actionButtonIcon: {
+    fontSize: 20,
+    height: 22,
+    color: 'white',
   },
   sectioncontainer: {
     paddingLeft: 24,

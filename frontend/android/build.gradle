@@ -1,5 +1,4 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-
 buildscript {
     repositories {
         jcenter()
@@ -7,12 +6,10 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.3'
 
-
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
-
 allprojects {
     repositories {
         mavenLocal()
@@ -22,4 +19,18 @@ allprojects {
             url "$rootDir/../node_modules/react-native/android"
         }
     }
+}
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion '23.0.1'
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_6
+        targetCompatibility JavaVersion.VERSION_1_6
+    }
+    dexOptions {
+        incremental true
+    }
+}
+dependencies {
 }

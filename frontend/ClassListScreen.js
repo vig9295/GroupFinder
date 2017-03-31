@@ -21,14 +21,20 @@ import {
 
 import Cookie from 'react-native-cookie';
 import NavigationBar from 'react-native-navigation-bar';
+import ActionButton from 'react-native-action-button';
+
 
 var width = Dimensions.get('window').width;
 
 export default class ClassListScreen extends Component {
 
+  static contextTypes = {
+      notifications: React.PropTypes.number
+  };
+
   constructor(props) {
     super(props);
-    this.state = { error: '', data: [], username: ''};
+    this.state = { error: '', data: [], username: '' };
     Cookie.get('hmm', 'username')
     .then((cookie) => {
       var formData = new FormData();
@@ -79,6 +85,7 @@ export default class ClassListScreen extends Component {
         } />
       );
     }
+    notificationText = "Alert (" + this.context.notifications + ")"; 
     return (  
       <View style={styles.container}>
         <NavigationBar 
@@ -89,13 +96,17 @@ export default class ClassListScreen extends Component {
           backgroundColor={'#004D40'}
           leftButtonTitle={'Log Out'}
           leftButtonTitleColor={'#fff'}
-          rightButtonTitle={'Add'}
+          rightButtonTitle={notificationText}
           rightButtonTitleColor={'#fff'}
-          onRightButtonPress={this.onAddClass.bind(this)}
+          onRightButtonPress={ this.onNotificationPress.bind(this)}
         />
         { listData } 
       </View>
     );
+  }
+
+  onNotificationPress() {
+    this.props.navigator.push({ screen: 'NotificationScreen' });
   }
 
   goGatechLogin() {
@@ -110,10 +121,6 @@ export default class ClassListScreen extends Component {
         classObj: classObj
       } 
     });
-  }
-
-  onAddClass() {
-    console.log('add a class? wut?');
   }
 }
 

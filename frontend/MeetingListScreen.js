@@ -22,10 +22,15 @@ import {
 import Cookie from 'react-native-cookie';
 import NavigationBar from 'react-native-navigation-bar';
 import EStyleSheet from 'react-native-extended-stylesheet';
+import ActionButton from 'react-native-action-button';
 
 var width = Dimensions.get('window').width;
 
 export default class MeetingListScreen extends Component {
+
+  static contextTypes = {
+      notifications: React.PropTypes.number
+  };
 
   constructor(props) {
     super(props);
@@ -138,6 +143,7 @@ export default class MeetingListScreen extends Component {
         />
       );
     }
+    notificationText = "Alert (" + this.context.notifications + ")"; 
     return (
       <View style={styles.container}>
         <NavigationBar
@@ -149,9 +155,9 @@ export default class MeetingListScreen extends Component {
           leftButtonTitle={'Back'}
           leftButtonTitleColor={'#fff'}
           onLeftButtonPress={this.onLeftButtonPress.bind(this)}
-          rightButtonTitle={'Add'}
+          rightButtonTitle={notificationText}
           rightButtonTitleColor={'#fff'}
-          onRightButtonPress={this.onAddGroup.bind(this)}
+          onRightButtonPress={ this.onNotificationPress.bind(this)}
         />
         <Text style={styles.navmarginhelper}></Text>
         <Text style={styles.titletext}>Your Meetings</Text>
@@ -160,8 +166,16 @@ export default class MeetingListScreen extends Component {
         { meetingsNotPartOf }
         <Text style={styles.titletext}>Class Members</Text>
         { studentList }
+        <ActionButton
+          buttonColor="rgba(231,76,60,1)"
+          onPress={() => { this.onAddGroup()}}
+        />
       </View>
     );
+  }
+
+  onNotificationPress() {
+    this.props.navigator.push({ screen: 'NotificationScreen' });
   }
 
   onLeftButtonPress() {

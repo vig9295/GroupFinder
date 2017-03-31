@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 
 import EStyleSheet from 'react-native-extended-stylesheet';
+import Pusher from 'pusher-js/react-native';
+import Cookie from 'react-native-cookie';
 
 import LoginScreen from './LoginScreen'
 import RegisterScreen from './RegisterScreen'
@@ -22,8 +24,47 @@ import CreateMeetingScreen from './CreateMeetingScreen'
 import EditGroupScreen from './EditGroupScreen'
 import MeetingScreen from './MeetingScreen'
 import ChatScreen from './ChatScreen'
+import NotificationScreen from './NotificationScreen'
 
 export default class GroupFinder extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = { notifications: 0};
+    this.pusher = new Pusher('0aab40d486c9e2ce1c43', {
+      encrypted: true
+    });
+    Cookie.get('hmm', 'username')
+      .then((cookie) => {
+        this.chatRoom = this.pusher.subscribe(cookie)
+      })
+      .catch((error) => {
+        console.error(error);
+      })
+  }
+
+  componentDidMount() {
+    if (this.chatRoom) {
+      this.chatRoom.bind('notification', function(data) {
+        if(data['success']) {
+          newNot = this.state.notifications + 1
+          this.setState({notifications: newNot})      
+        }
+      });
+    }
+  }
+
+  notificationsCallback() {
+    this.setState({notifications: 0});
+  }
+
+  static childContextTypes = {
+    notifications: React.PropTypes.number
+  };
+
+  getChildContext() {
+    return { notifications: this.state.notifications };
+  }
   
   render() {
     return (
@@ -56,6 +97,8 @@ export default class GroupFinder extends Component {
         return <ChatScreen navigator={nav} {...route.passProps}/>
       case 'EditGroupScreen':
         return <EditGroupScreen navigator={nav} />
+      case 'NotificationScreen':
+        return <NotificationScreen navigator={nav} notificationsCallback={this.notificationsCallback} />
       }
   }
 }
