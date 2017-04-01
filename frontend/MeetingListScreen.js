@@ -19,6 +19,7 @@ import {
   TouchableHighlight
 } from 'react-native';
 
+import { TabViewAnimated, TabBar } from 'react-native-tab-view';
 import Cookie from 'react-native-cookie';
 import NavigationBar from 'react-native-navigation-bar';
 import EStyleSheet from 'react-native-extended-stylesheet';
@@ -29,7 +30,116 @@ export default class MeetingListScreen extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { error: '', meetingsPartOf: [], meetingsNotPartOf: [], classMembers: []};
+    this.state = { error: '', 
+      meetingsPartOf: [], 
+      meetingsNotPartOf: [], 
+      classMembers: [], 
+      index: 0,
+      routes: [
+        { key: '1', title: 'Meetings' },
+        { key: '2', title: 'People' },
+      ]
+    };
+
+    this._handleChangeTab = (index) => {
+      this.setState({ index });
+    };
+
+    this._renderHeader = (props) => {
+      return (
+        <View>
+          <NavigationBar
+            style={styles.navbar}
+            title={'Meeting List'}
+            height={44}
+            titleColor={'#fff'}
+            backgroundColor={'#004D40'}
+            leftButtonTitle={'Back'}
+            leftButtonTitleColor={'#fff'}
+            onLeftButtonPress={this.onLeftButtonPress.bind(this)}
+            rightButtonTitle={'Add'}
+            rightButtonTitleColor={'#fff'}
+            onRightButtonPress={this.onAddGroup.bind(this)}
+          />
+          <TabBar {...props} style={styles.tabBar}/>
+        </View>
+      )
+    };
+
+    this._renderScene = ({ route }) => {
+      let meetingsYouArePartOf = null
+      console.log(this.state.meetingsYouArePartOf);
+      if (this.state.meetingsNotPartOf) {
+        meetingsYouArePartOf = (
+          <TouchableHighlight style={styles.classtitem} onPress={this.onAddGroup.bind(this)}>
+            <Text style={styles.classtest}>You have no groups for this class. Press here to make one!</Text>
+          </TouchableHighlight>
+        );
+      } else {
+        meetingsYouArePartOf = (
+          <ListView style={styles.classlist}
+          dataSource={this.state.meetingsPartOf}
+          renderRow={(rowData) =>
+            <TouchableHighlight style={styles.classitem} onPress={() => this.onMeetingPress(rowData)}>
+              <Text style={styles.classtext}>{rowData['title']}</Text>
+            </TouchableHighlight>
+          } />
+        );
+      }
+
+      let meetingsNotPartOf = null
+
+      if (this.state.meetingsNotPartOf.length == 0) {
+        meetingsNotPartOf = (
+          <TouchableHighlight onPress={this.onAddGroup.bind(this)}>
+            <Text style={styles.instructions}>You have no groups for this class. Press here to make one!</Text>
+          </TouchableHighlight>
+        );
+      } else {
+        meetingsNotPartOf = (
+          <ListView style={styles.classlist}
+          dataSource={this.state.meetingsNotPartOf}
+          renderRow={(rowData) =>
+            <TouchableHighlight style={styles.classitem} onPress={() => this.onMeetingPress(rowData)}>
+              <Text style={styles.classtext}>{rowData['title']}</Text>
+            </TouchableHighlight>
+          } />
+        );
+      }
+
+      if (this.state.classMembers.length == 0) {
+        studentList = (
+           <Text style={styles.instructions}>You have no students in this class</Text>
+        );
+      } else {
+        studentList = (
+          <ListView style={styles.classlist}
+            dataSource={this.state.classMembers}
+            renderRow={(rowData) =>
+              <TouchableHighlight style={styles.classitem} onPress={() => this.onMemberPress(rowData)}>
+                <Text style={styles.classtext}>{rowData['name']}</Text>
+              </TouchableHighlight>
+            }
+          />
+        );
+      }
+
+      switch (route.key) {
+      case '1':
+        return <View style={styles.container}>
+          <Text style={styles.titletext}>Your Meetings</Text>
+          { meetingsYouArePartOf }
+          <Text style={styles.titletext}>Available Meetings</Text>
+          { meetingsNotPartOf }
+        </View>
+      case '2':
+        return <View style={styles.container}>
+            { studentList }
+          </View>
+      default:
+        return null;
+      }
+    };
   }
 
   componentDidMount() {
@@ -83,84 +193,14 @@ export default class MeetingListScreen extends Component {
   }
 
   render() {
-    let meetingsYouArePartOf = null
-    if (this.state.meetingsNotPartOf.length == 0) {
-      meetingsYouArePartOf = (
-        <TouchableHighlight onPress={this.onAddGroup.bind(this)}>
-          <Text style={styles.instructions}>You have no groups for this class. Press here to make one!</Text>
-        </TouchableHighlight>
-      );
-    } else {
-      meetingsYouArePartOf = (
-        <ListView style={styles.classlist}
-        dataSource={this.state.meetingsPartOf}
-        renderRow={(rowData) =>
-          <TouchableHighlight style={styles.classitem} onPress={() => this.onMeetingPress(rowData)}>
-            <Text style={styles.classtext}>{rowData['title']}</Text>
-          </TouchableHighlight>
-        } />
-      );
-    }
-
-    let meetingsNotPartOf = null
-
-    if (this.state.meetingsNotPartOf.length == 0) {
-      meetingsNotPartOf = (
-        <TouchableHighlight onPress={this.onAddGroup.bind(this)}>
-          <Text style={styles.instructions}>You have no groups for this class. Press here to make one!</Text>
-        </TouchableHighlight>
-      );
-    } else {
-      meetingsNotPartOf = (
-        <ListView style={styles.classlist}
-        dataSource={this.state.meetingsNotPartOf}
-        renderRow={(rowData) =>
-          <TouchableHighlight style={styles.classitem} onPress={() => this.onMeetingPress(rowData)}>
-            <Text style={styles.classtext}>{rowData['title']}</Text>
-          </TouchableHighlight>
-        } />
-      );
-    }
-
-    if (this.state.classMembers.length == 0) {
-      studentList = (
-         <Text style={styles.instructions}>You have no students in this class</Text>
-      );
-    } else {
-      studentList = (
-        <ListView style={styles.classlist}
-          dataSource={this.state.classMembers}
-          renderRow={(rowData) =>
-            <TouchableHighlight style={styles.classitem} onPress={() => this.onMemberPress(rowData)}>
-              <Text style={styles.classtext}>{rowData['name']}</Text>
-            </TouchableHighlight>
-          }
-        />
-      );
-    }
     return (
-      <View style={styles.container}>
-        <NavigationBar
-          style={styles.navbar}
-          title={'Meeting List'}
-          height={44}
-          titleColor={'#fff'}
-          backgroundColor={'#004D40'}
-          leftButtonTitle={'Back'}
-          leftButtonTitleColor={'#fff'}
-          onLeftButtonPress={this.onLeftButtonPress.bind(this)}
-          rightButtonTitle={'Add'}
-          rightButtonTitleColor={'#fff'}
-          onRightButtonPress={this.onAddGroup.bind(this)}
-        />
-        <Text style={styles.navmarginhelper}></Text>
-        <Text style={styles.titletext}>Your Meetings</Text>
-        { meetingsYouArePartOf }
-        <Text style={styles.titletext}>Available Meetings</Text>
-        { meetingsNotPartOf }
-        <Text style={styles.titletext}>Class Members</Text>
-        { studentList }
-      </View>
+      <TabViewAnimated
+        style={styles.tabViewContainer}
+        navigationState={this.state}
+        renderScene={this._renderScene}
+        renderHeader={this._renderHeader}
+        onRequestChangeTab={this._handleChangeTab}
+      />
     );
   }
 
@@ -221,11 +261,23 @@ export default class MeetingListScreen extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    //flex: 1,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
     flexDirection: 'column'
+  },
+  tabBar: {
+    marginTop: 44,
+    backgroundColor: '#009980'
+  },
+  tabViewContainer: {
+    flex: 1
+  },
+  page: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   titletext: {
     fontSize: 22,
