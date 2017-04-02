@@ -21,6 +21,7 @@ import ClassLoadingScreen from './ClassLoadingScreen'
 import CreateMeetingScreen from './CreateMeetingScreen'
 import EditGroupScreen from './EditGroupScreen'
 import MeetingScreen from './MeetingScreen'
+import MeetingPreviewScreen from './MeetingPreviewScreen'
 import ChatScreen from './ChatScreen'
 
 export default class GroupFinder extends Component {
@@ -52,6 +53,8 @@ export default class GroupFinder extends Component {
         return <CreateMeetingScreen navigator={nav} {...route.passProps}/>
       case 'MeetingScreen':
         return <MeetingScreen navigator={nav} {...route.passProps}/>
+      case 'MeetingPreviewScreen':
+        return <MeetingPreviewScreen navigator={nav} {...route.passProps}/>
       case 'ChatScreen':
         return <ChatScreen navigator={nav} {...route.passProps}/>
       case 'EditGroupScreen':

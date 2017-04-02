@@ -100,7 +100,7 @@ export default class MeetingListScreen extends Component {
           <ListView style={styles.classlist}
           dataSource={this.state.meetingsNotPartOf}
           renderRow={(rowData) =>
-            <TouchableHighlight style={styles.classitem} onPress={() => this.onMeetingPress(rowData)}>
+            <TouchableHighlight style={styles.classitem} onPress={() => this.onMeetingNotPartOfPress(rowData)}>
               <Text style={styles.classtext}>{rowData['title']}</Text>
             </TouchableHighlight>
           } />
@@ -211,6 +211,16 @@ export default class MeetingListScreen extends Component {
   onMeetingPress(meetingObj) {
     this.props.navigator.push({
       screen: 'MeetingScreen',
+      passProps: {
+        username: this.props.username,
+        meetingObj: meetingObj,
+        classObj: this.props.classObj      }
+    });
+  }
+
+  onMeetingNotPartOfPress(meetingObj) {
+    this.props.navigator.push({
+      screen: 'MeetingPreviewScreen',
       passProps: {
         username: this.props.username,
         meetingObj: meetingObj,
