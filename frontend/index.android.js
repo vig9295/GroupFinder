@@ -23,6 +23,7 @@ import ClassLoadingScreen from './ClassLoadingScreen'
 import CreateMeetingScreen from './CreateMeetingScreen'
 import EditGroupScreen from './EditGroupScreen'
 import MeetingScreen from './MeetingScreen'
+import MeetingPreviewScreen from './MeetingPreviewScreen'
 import ChatScreen from './ChatScreen'
 import NotificationScreen from './NotificationScreen'
 
@@ -34,24 +35,21 @@ export default class GroupFinder extends Component {
     this.pusher = new Pusher('0aab40d486c9e2ce1c43', {
       encrypted: true
     });
+    var self = this;
     Cookie.get('hmm', 'username')
       .then((cookie) => {
-        this.chatRoom = this.pusher.subscribe(cookie)
+        console.log(cookie);
+        self.notificationRoom = self.pusher.subscribe(cookie)
+        self.notificationRoom.bind('notification', function(data) {
+          if(data['success']) {
+            newNot = self.state.notifications + 1
+            self.setState({notifications: newNot})
+          }
+        });
       })
       .catch((error) => {
         console.error(error);
       })
-  }
-
-  componentDidMount() {
-    if (this.chatRoom) {
-      this.chatRoom.bind('notification', function(data) {
-        if(data['success']) {
-          newNot = this.state.notifications + 1
-          this.setState({notifications: newNot})      
-        }
-      });
-    }
   }
 
   notificationsCallback() {
@@ -65,7 +63,7 @@ export default class GroupFinder extends Component {
   getChildContext() {
     return { notifications: this.state.notifications };
   }
-  
+
   render() {
     return (
       <Navigator
@@ -93,12 +91,14 @@ export default class GroupFinder extends Component {
         return <CreateMeetingScreen navigator={nav} {...route.passProps}/>
       case 'MeetingScreen':
         return <MeetingScreen navigator={nav} {...route.passProps}/>
+      case 'MeetingPreviewScreen':
+        return <MeetingPreviewScreen navigator={nav} {...route.passProps}/>
       case 'ChatScreen':
         return <ChatScreen navigator={nav} {...route.passProps}/>
       case 'EditGroupScreen':
         return <EditGroupScreen navigator={nav} />
       case 'NotificationScreen':
-        return <NotificationScreen navigator={nav} notificationsCallback={this.notificationsCallback} />
+        return <NotificationScreen navigator={nav} notificationsCallback={this.notificationsCallback()} />
       }
   }
 }

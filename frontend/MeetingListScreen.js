@@ -19,6 +19,7 @@ import {
   TouchableHighlight
 } from 'react-native';
 
+import { TabViewAnimated, TabBar } from 'react-native-tab-view';
 import Cookie from 'react-native-cookie';
 import NavigationBar from 'react-native-navigation-bar';
 import EStyleSheet from 'react-native-extended-stylesheet';
@@ -32,9 +33,22 @@ export default class MeetingListScreen extends Component {
       notifications: React.PropTypes.number
   };
 
-  constructor(props) {
-    super(props);
-    this.state = { error: '', meetingsPartOf: [], meetingsNotPartOf: [], classMembers: []};
+  constructor(props, context) {
+    super(props, context);
+    this.state = { error: '',
+      meetingsPartOf: [],
+      meetingsNotPartOf: [],
+      classMembers: [],
+      index: 0,
+      routes: [
+        { key: '1', title: 'Meetings' },
+        { key: '2', title: 'People' },
+      ]
+    };
+  }
+
+  handleChangeTab(index) {
+    this.setState({ index });
   }
 
   componentDidMount() {
@@ -88,7 +102,60 @@ export default class MeetingListScreen extends Component {
   }
 
   render() {
-    let meetingsYouArePartOf = null
+    return (
+      <TabViewAnimated
+        style={styles.tabViewContainer}
+        navigationState={this.state}
+        renderScene={this.renderScene.bind(this)}
+        renderHeader={this.renderHeader.bind(this)}
+        onRequestChangeTab={this.handleChangeTab.bind(this)}
+      />
+    );
+  }
+
+  renderHeader(props) {
+      notificationText = "Alert (" + this.context.notifications + ")";
+      return (
+        <View>
+          <NavigationBar
+            style={styles.navbar}
+            title={'Meeting List'}
+            height={44}
+            titleColor={'#fff'}
+            backgroundColor={'#004D40'}
+            leftButtonTitle={'Back'}
+            leftButtonTitleColor={'#fff'}
+            onLeftButtonPress={this.onLeftButtonPress.bind(this)}
+            rightButtonTitle={notificationText}
+            rightButtonTitleColor={'#fff'}
+            onRightButtonPress={ this.onNotificationPress.bind(this)}
+          />
+          <TabBar {...props} style={styles.tabBar}/>
+        </View>
+      )
+  }
+
+  report(user) {
+    var formData = new FormData();
+    formData.append('reporterID', this.props.username);
+    formData.append('reportedID', user.memberID);
+    formData.append('reason', "Default reason");
+    url = 'https://group-finder.herokuapp.com/send_report'
+    fetch(url,
+      {
+        method: 'POST',
+        body: formData
+      }
+    )
+    .then((response) => {
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+    console.log(user);
+  }
+
+  renderScene({ route }) {
     if (this.state.meetingsNotPartOf.length == 0) {
       meetingsYouArePartOf = (
         <TouchableHighlight onPress={this.onAddGroup.bind(this)}>
@@ -107,8 +174,6 @@ export default class MeetingListScreen extends Component {
       );
     }
 
-    let meetingsNotPartOf = null
-
     if (this.state.meetingsNotPartOf.length == 0) {
       meetingsNotPartOf = (
         <TouchableHighlight onPress={this.onAddGroup.bind(this)}>
@@ -120,7 +185,7 @@ export default class MeetingListScreen extends Component {
         <ListView style={styles.classlist}
         dataSource={this.state.meetingsNotPartOf}
         renderRow={(rowData) =>
-          <TouchableHighlight style={styles.classitem} onPress={() => this.onMeetingPress(rowData)}>
+          <TouchableHighlight style={styles.classitem} onPress={() => this.onMeetingNotPartOfPress(rowData)}>
             <Text style={styles.classtext}>{rowData['title']}</Text>
           </TouchableHighlight>
         } />
@@ -136,42 +201,52 @@ export default class MeetingListScreen extends Component {
         <ListView style={styles.classlist}
           dataSource={this.state.classMembers}
           renderRow={(rowData) =>
-            <TouchableHighlight style={styles.classitem} onPress={() => this.onMemberPress(rowData)}>
-              <Text style={styles.classtext}>{rowData['name']}</Text>
-            </TouchableHighlight>
+            <View>
+              <TouchableHighlight style={styles.classitem} onPress={() => this.onMemberPress(rowData)}>
+                <Text style={styles.classtext}>{rowData['name']}</Text>
+              </TouchableHighlight>
+              <Button
+                style={{fontSize: 40}}
+                title="Report"
+                color="#00695C"
+                onPress={() => this.report(rowData)}
+              />
+            </View>
           }
         />
       );
     }
-    notificationText = "Alert (" + this.context.notifications + ")"; 
-    return (
-      <View style={styles.container}>
-        <NavigationBar
-          style={styles.navbar}
-          title={'Meeting List'}
-          height={44}
-          titleColor={'#fff'}
-          backgroundColor={'#004D40'}
-          leftButtonTitle={'Back'}
-          leftButtonTitleColor={'#fff'}
-          onLeftButtonPress={this.onLeftButtonPress.bind(this)}
-          rightButtonTitle={notificationText}
-          rightButtonTitleColor={'#fff'}
-          onRightButtonPress={ this.onNotificationPress.bind(this)}
-        />
-        <Text style={styles.navmarginhelper}></Text>
-        <Text style={styles.titletext}>Your Meetings</Text>
-        { meetingsYouArePartOf }
-        <Text style={styles.titletext}>Available Meetings</Text>
-        { meetingsNotPartOf }
-        <Text style={styles.titletext}>Class Members</Text>
-        { studentList }
-        <ActionButton
-          buttonColor="rgba(231,76,60,1)"
-          onPress={() => { this.onAddGroup()}}
-        />
-      </View>
-    );
+
+    switch (route.key) {
+      case '1':
+        return (
+          <View style={styles.container}>
+            <Text style={styles.titletext}>Your Meetings</Text>
+            { meetingsYouArePartOf }
+            <Text style={styles.titletext}>Available Meetings</Text>
+            { meetingsNotPartOf }
+            <ActionButton
+              buttonColor="rgba(231,76,60,1)"
+              onPress={() => { this.onAddGroup()}}
+            />
+          </View>
+        );
+        break;
+      case '2':
+        return (
+          <View style={styles.container}>
+            <Text style={styles.titletext}>Class Members</Text>
+            { studentList }
+            <ActionButton
+              buttonColor="rgba(231,76,60,1)"
+              onPress={() => { this.onAddGroup()}}
+            />
+          </View>
+        );
+        break;
+      default:
+        return null;
+      }
   }
 
   onNotificationPress() {
@@ -185,6 +260,16 @@ export default class MeetingListScreen extends Component {
   onMeetingPress(meetingObj) {
     this.props.navigator.push({
       screen: 'MeetingScreen',
+      passProps: {
+        username: this.props.username,
+        meetingObj: meetingObj,
+        classObj: this.props.classObj      }
+    });
+  }
+
+  onMeetingNotPartOfPress(meetingObj) {
+    this.props.navigator.push({
+      screen: 'MeetingPreviewScreen',
       passProps: {
         username: this.props.username,
         meetingObj: meetingObj,
@@ -235,11 +320,23 @@ export default class MeetingListScreen extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    //flex: 1,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
     flexDirection: 'column'
+  },
+  tabBar: {
+    marginTop: 44,
+    backgroundColor: '#009980'
+  },
+  tabViewContainer: {
+    flex: 1
+  },
+  page: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   titletext: {
     fontSize: 22,

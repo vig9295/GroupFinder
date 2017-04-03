@@ -19,11 +19,11 @@ import {
   TouchableHighlight
 } from 'react-native';
 
+import { TabViewAnimated, TabBar } from 'react-native-tab-view';
 import Cookie from 'react-native-cookie';
 import NavigationBar from 'react-native-navigation-bar';
 import EStyleSheet from 'react-native-extended-stylesheet';
 import ActionButton from 'react-native-action-button';
-import Tabs from 'react-native-tabs';
 
 var width = Dimensions.get('window').width;
 
@@ -35,14 +35,21 @@ export default class NotificationScreen extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { username: '', page: 'reminders', reminders: [], joinRequests: []};
+    this.state = { username: '', reminders: [], joinRequests: [], index: 0, routes: [
+      { key: '1', title: 'Reminders' },
+      { key: '2', title: 'Join Requests' },
+    ]};
+  }
+
+  handleChangeTab(index) {
+    this.setState({ index });
   }
 
   componentDidMount() {
     Cookie.get('hmm', 'username')
     .then((cookie) => {
       this.setState({ username: cookie});
-      fetch('https://group-finder.herokuapp.com/' + cookie + '/receive_reminders', 
+      fetch('https://group-finder.herokuapp.com/' + cookie + '/get_notifications',
         {
           method: 'GET',
         }
@@ -50,13 +57,19 @@ export default class NotificationScreen extends Component {
       .then((response) => response.json())
       .then((responseJson) => {
         if(responseJson['success']) {
-          if(responseJson['data'].length > 0) {
+          if(responseJson['reminders'].length > 0) {
             const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
             this.setState({
-              reminders: ds.cloneWithRows(responseJson['data'])
+              reminders: ds.cloneWithRows(responseJson['reminders'])
             });
-            console.log(this.state.reminders);
           }
+          if(responseJson['requests'].length > 0) {
+            const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+            this.setState({
+              joinRequests: ds.cloneWithRows(responseJson['requests'])
+            });
+          }
+          console.log("BRUH", this.state.joinRequests);
         }
         else {
           this.setState({ error: responseJson['message'] });
@@ -69,6 +82,36 @@ export default class NotificationScreen extends Component {
   }
 
   render() {
+    return (
+      <TabViewAnimated
+        style={styles.tabViewContainer}
+        navigationState={this.state}
+        renderScene={this.renderScene.bind(this)}
+        renderHeader={this.renderHeader.bind(this)}
+        onRequestChangeTab={this.handleChangeTab.bind(this)}
+      />
+    );
+  }
+
+  renderHeader(props) {
+      return (
+        <View>
+          <NavigationBar
+            style={styles.navbar}
+            title={'Notifications'}
+            height={44}
+            titleColor={'#fff'}
+            backgroundColor={'#004D40'}
+            leftButtonTitle={'Back'}
+            leftButtonTitleColor={'#fff'}
+            onLeftButtonPress={this.onLeftButtonPress.bind(this)}
+          />
+          <TabBar {...props} style={styles.tabBar}/>
+        </View>
+      )
+  }
+
+  renderScene({ route }) {
     let reminders = null
     if (this.state.reminders.length == 0) {
       reminders = (
@@ -76,13 +119,16 @@ export default class NotificationScreen extends Component {
       );
     } else {
       reminders = (
-        <ListView 
+        <ListView
         dataSource={this.state.reminders}
-        renderRow={(rowData) =>
-          <TouchableHighlight style={styles.classitem} onPress={() => this.onMeetingPress(rowData)}>
-            <Text style={styles.classtext}>{rowData['title']}</Text>
-          </TouchableHighlight>
-        } />
+        renderRow={(rowData) => {
+          text = 'You have been reminded about ' + rowData['title'];
+          return (
+            <TouchableHighlight style={styles.classitem}>
+              <Text style={styles.classtext}>{text}</Text>
+            </TouchableHighlight>
+          );
+        }} />
       );
     }
 
@@ -95,44 +141,107 @@ export default class NotificationScreen extends Component {
     } else {
       joinRequests = (
         <ListView style={styles.classlist}
-          dataSource={this.state.classMembers}
-          renderRow={(rowData) =>
-            <TouchableHighlight style={styles.classitem} onPress={() => this.onMemberPress(rowData)}>
-              <Text style={styles.classtext}>{rowData['name']}</Text>
-            </TouchableHighlight>
-          }
+          dataSource={this.state.joinRequests}
+          renderRow={(rowData) => {
+            text = rowData['memberName'] + ' requests to join ' + rowData['meetingTitle']
+            return (
+              <TouchableHighlight style={styles.classitem}>
+                <Text style={styles.classtext}>{text}</Text>
+              </TouchableHighlight>
+            );
+          }}
         />
       );
     }
-    let component = reminders
-    if (this.state.page == 'joinRequests') {
-      component = joinRequests
-    }
 
-    return (
-      <View style={styles.container}>
-        <NavigationBar
-          style={styles.navbar}
-          title={'Notifications'}
-          height={44}
-          titleColor={'#fff'}
-          backgroundColor={'#004D40'}
-          leftButtonTitle={'Back'}
-          leftButtonTitleColor={'#fff'}
-          onLeftButtonPress={this.onLeftButtonPress.bind(this)}
-        />
-        <Tabs style={styles.tabs} selected={this.state.page} style={{backgroundColor:'white'}}
-              selectedStyle={{color:'red'}} onSelect={el=>this.setState({page:el.props.name})}>
-            <Text name="reminders">Reminders</Text>
-            <Text name="joinRequests">Join Requests</Text>
-        </Tabs>
-        {component}
-      </View>
-    );
+    switch (route.key) {
+      case '1':
+        return (
+          <View style={styles.container}>
+            <Text style={styles.titletext}>Reminders</Text>
+            { reminders }
+          </View>
+        );
+        break;
+      case '2':
+        return (
+          <View style={styles.container}>
+            <Text style={styles.titletext}>Join Requests</Text>
+            { joinRequests }
+          </View>
+        );
+        break;
+      default:
+        return null;
+      }
+  }
+
+  onNotificationPress() {
+    this.props.navigator.push({ screen: 'NotificationScreen' });
   }
 
   onLeftButtonPress() {
     this.props.navigator.pop();
+  }
+
+  onMeetingPress(meetingObj) {
+    this.props.navigator.push({
+      screen: 'MeetingScreen',
+      passProps: {
+        username: this.props.username,
+        meetingObj: meetingObj,
+        classObj: this.props.classObj      }
+    });
+  }
+
+  onMeetingNotPartOfPress(meetingObj) {
+    this.props.navigator.push({
+      screen: 'MeetingPreviewScreen',
+      passProps: {
+        username: this.props.username,
+        meetingObj: meetingObj,
+        classObj: this.props.classObj      }
+    });
+  }
+
+  onMemberPress(memberObj) {
+    var formData = new FormData();
+    formData.append('memberID', this.props.username);
+    formData.append('member1ID', memberObj.memberID);
+    url = 'https://group-finder.herokuapp.com/get_chatID2';
+    fetch(url, {
+      method: 'POST',
+      body: formData
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+      if(responseJson['success']) {
+        this.props.navigator.push({
+          screen: 'ChatScreen',
+          passProps: {
+            title: memberObj.name,
+            username: this.props.username,
+            chatID: responseJson['chatID']
+          }
+        });
+      }
+      else {
+        this.setState({ error: responseJson['message'] });
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
+  onAddGroup() {
+    this.props.navigator.push({
+      screen: 'CreateMeetingScreen',
+      passProps: {
+        username: this.props.username,
+        classID: this.props.classObj.classID
+      }
+    });
   }
 }
 
@@ -144,9 +253,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5FCFF',
     flexDirection: 'column'
   },
-  tabs : {
+  tabBar: {
+    marginTop: 44,
+    backgroundColor: '#009980'
+  },
+  tabViewContainer: {
+    flex: 1
+  },
+  page: {
     flex: 1,
-  },  
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   titletext: {
     fontSize: 22,
     marginTop: 10,
@@ -168,7 +286,6 @@ const styles = StyleSheet.create({
     marginBottom:40
   },
   classitem: {
-    flex: 1,
     height: 75,
     width: width,
     borderBottomWidth: 3,
@@ -182,7 +299,8 @@ const styles = StyleSheet.create({
     fontSize: 25
   },
   navbar: {
-    flex: 1
+    //and here's where I would put my styles
+    //  iF I HAD ONE
   },
   welcome: {
     fontSize: 20,

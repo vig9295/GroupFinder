@@ -157,3 +157,13 @@ def unban_member(memberID):
                     'message': 'Unbanned successfully'
                 }
             )
+
+def get_all_members():
+    db = connect()
+    with db.cursor() as cur:
+        cur.execute("SELECT memberID FROM members")
+        details = cur.fetchall()
+        stuff = []
+        for item in details:
+            stuff.append(item[0])
+        return (stuff)

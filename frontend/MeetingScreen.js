@@ -32,7 +32,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 var width = Dimensions.get('window').width;
 
 export default class MeetingScreen extends Component {
-  
+
   static contextTypes = {
       notifications: React.PropTypes.number
   };
@@ -71,7 +71,7 @@ export default class MeetingScreen extends Component {
     if (this.state.data.length == 0) {
       listData = (
         <TouchableHighlight>
-          <Text>Bruh</Text>
+          <Text>No notifications!</Text>
         </TouchableHighlight>
       )
     } else {
@@ -86,13 +86,13 @@ export default class MeetingScreen extends Component {
       )
     }
 
-    notificationText = "Alert (" + this.context.notifications + ")"; 
+    notificationText = "Alert (" + this.context.notifications + ")";
     icon = (<Icon name="ios-add" style={styles.actionButtonIcon} />);
     return (
       <View style={styles.container}>
         <NavigationBar
           style={styles.navbar}
-          title={'Meeting List'}
+          title={this.props.meetingObj.title}
           height={44}
           titleColor={'#fff'}
           backgroundColor={'#004D40'}
