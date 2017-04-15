@@ -13,6 +13,7 @@ import {
   Button,
   Image,
   ListView,
+  ScrollView,
   View,
   Dimensions,
   Navigator,
@@ -26,6 +27,7 @@ import { FilePickerManager } from 'NativeModules';
 import RNFetchBlob from 'react-native-fetch-blob';
 import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
+import RNCalendarEvents from 'react-native-calendar-events'
 
 
 
@@ -103,7 +105,7 @@ export default class MeetingScreen extends Component {
           rightButtonTitleColor={'#fff'}
           onRightButtonPress={ this.onNotificationPress.bind(this)}
         />
-
+        <ScrollView>
         <View style={styles.meetingcontainer}>
           <Text style={styles.navmarginhelper}></Text>
           <View style={styles.sectioncontainer}>
@@ -127,14 +129,21 @@ export default class MeetingScreen extends Component {
             <Text style={styles.detailtitle}>Documents</Text>
           </View>
           <Text />
-          <View style={styles.simplebutton}>
+          <View style={styles.simplebuttoncontainer}>
             <Button
               style={styles.simplebutton}
               title="Upload Documents"
               onPress={this.onUploadPress.bind(this)}
             />
+            <Button
+              style={styles.simplebutton}
+              title="Add to Calendar"
+              color="#00695C"
+              onPress={this.onCalendarPress.bind(this)}
+            />
           </View>
         </View>
+        </ScrollView>
         <ActionButton
           icon = {icon}
           buttonColor="rgba(231,76,60,1)"
@@ -145,7 +154,7 @@ export default class MeetingScreen extends Component {
   }
 
   onNotificationPress() {
-    //todo
+    this.props.navigator.push({ screen: 'NotificationScreen' });
   }
 
   onLeftButtonPress() {
@@ -194,6 +203,21 @@ export default class MeetingScreen extends Component {
       // error handling
     })
 
+  }
+
+  onCalendarPress() {
+    RNCalendarEvents.saveEvent('title', {
+      location: 'location',
+      notes: 'notes',
+      startDate: '2016-08-19T19:26:00.000Z',
+      endDate: '2017-08-19T19:26:00.000Z'
+    })
+    .then(id => {
+      console.log("DID THIS WORK?");
+    })
+    .catch(error => {
+      console.log("BRUH", error);
+    });
   }
 
 
@@ -256,7 +280,6 @@ export default class MeetingScreen extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    //flex: 1,
     justifyContent: 'center',
     backgroundColor: '#F5FCFF',
     flexDirection: 'column',
