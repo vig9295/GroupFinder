@@ -316,8 +316,13 @@ def send_report():
 	return jsonify (
 		email_sender.send_mail_to_admin("User" + reporter_id + "reports user" + reported_id + "for" + reason)
 	)
-	#TODO to ban that user?
 
+@app.route('/feedback', methods=['POST'])
+def feedback():
+	feedback = request.form['feedback']
+	return jsonify (
+		email_sender.send_mail_to_admin(feedback)
+	)
 
 @app.route('/<string:meetingID>/send_reminders', methods=['GET'])
 def send_reminders(meetingID):

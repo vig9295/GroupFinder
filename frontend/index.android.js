@@ -26,6 +26,7 @@ import MeetingScreen from './MeetingScreen'
 import MeetingPreviewScreen from './MeetingPreviewScreen'
 import ChatScreen from './ChatScreen'
 import NotificationScreen from './NotificationScreen'
+import FeedbackScreen from './FeedbackScreen'
 
 export default class GroupFinder extends Component {
 
@@ -99,6 +100,8 @@ export default class GroupFinder extends Component {
         return <EditGroupScreen navigator={nav} />
       case 'NotificationScreen':
         return <NotificationScreen navigator={nav} notificationsCallback={this.notificationsCallback()} />
+      case 'FeedbackScreen':
+        return <FeedbackScreen navigator={nav} />
       }
   }
 }

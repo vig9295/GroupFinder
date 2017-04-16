@@ -16,13 +16,14 @@ import {
   View,
   Dimensions,
   Navigator,
-  TouchableHighlight
+  TouchableHighlight,
+  Linking
 } from 'react-native';
 
 import Cookie from 'react-native-cookie';
 import NavigationBar from 'react-native-navigation-bar';
 import ActionButton from 'react-native-action-button';
-
+import Drawer from 'react-native-drawer'
 
 var width = Dimensions.get('window').width;
 
@@ -66,6 +67,18 @@ export default class ClassListScreen extends Component {
     });
   }  
 
+  closeDrawer() {
+    this._drawer.close()
+  }
+
+  openDrawer() {
+    this._drawer.open()
+  }
+
+  piazzaLink() {
+    Linking.openURL('http://www.piazza.com').catch(err => console.error('An error occurred', err))
+  }
+
   render() { 
     let listData = null
     if (this.state.data.length == 0) {
@@ -85,23 +98,45 @@ export default class ClassListScreen extends Component {
         } />
       );
     }
+    var menuOptions = (
+      <View>
+        <TouchableHighlight onPress={this.goFeedback.bind(this)}>
+          <Text style={styles.instructions}>Give Us Feedback</Text>
+        </TouchableHighlight>
+        <TouchableHighlight onPress={this.piazzaLink.bind(this)}>
+          <Text style={styles.instructions}>Piazza</Text>
+        </TouchableHighlight>
+        <TouchableHighlight >
+          <Text style={styles.instructions}>Logout</Text>
+        </TouchableHighlight>
+      </View>
+    )
     notificationText = "Alert (" + this.context.notifications + ")"; 
     return (  
-      <View style={styles.container}>
-        <NavigationBar 
-          style={styles.navbar}
-          title={'Class List'}
-          height={44}
-          titleColor={'#fff'}
-          backgroundColor={'#004D40'}
-          leftButtonTitle={'Log Out'}
-          leftButtonTitleColor={'#fff'}
-          rightButtonTitle={notificationText}
-          rightButtonTitleColor={'#fff'}
-          onRightButtonPress={ this.onNotificationPress.bind(this)}
-        />
-        { listData } 
-      </View>
+      <Drawer
+        content={menuOptions}
+        ref={(ref) => this._drawer = ref}
+        tapToClose={true}
+        openDrawerOffset={0.2}
+        panCloseMask={0.2}
+        closedDrawerOffset={-3}>
+        <View style={styles.container}>
+          <NavigationBar 
+            style={styles.navbar}
+            title={'Class List'}
+            height={44}
+            titleColor={'#fff'}
+            backgroundColor={'#004D40'}
+            leftButtonTitle={'Menu'}
+            leftButtonTitleColor={'#fff'}
+            rightButtonTitle={notificationText}
+            rightButtonTitleColor={'#fff'}
+            onRightButtonPress={ this.onNotificationPress.bind(this)}
+            onLeftButtonPress={ this.openDrawer.bind(this) }
+          />
+          { listData }
+          </View>
+      </Drawer>
     );
   }
 
@@ -111,6 +146,10 @@ export default class ClassListScreen extends Component {
 
   goGatechLogin() {
     this.props.navigator.push({ screen: 'GatechLoginScreen' });
+  }
+
+  goFeedback() {
+    this.props.navigator.push({ screen: 'FeedbackScreen' });
   }
 
   onClassPress(classObj) {
@@ -162,5 +201,10 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
 });
+
+const drawerStyles = {
+  drawer: { shadowColor: '#000000', shadowOpacity: 0.8, shadowRadius: 3},
+  main: {paddingLeft: 3},
+}
 
 AppRegistry.registerComponent('ClassListScreen', () => ClassListScreen);

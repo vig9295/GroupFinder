@@ -206,14 +206,21 @@ export default class MeetingScreen extends Component {
   }
 
   onCalendarPress() {
-    RNCalendarEvents.saveEvent('title', {
-      location: 'location',
-      notes: 'notes',
-      startDate: '2016-08-19T19:26:00.000Z',
-      endDate: '2017-08-19T19:26:00.000Z'
+    var startDate = new Date(this.props.meetingObj.dateJson);
+    Date.prototype.addHours= function(h){
+      this.setHours(this.getHours()+h);
+      return this;
+    }
+    var endDate = startDate.addHours(1); 
+    console.log("DUUUsfasdg", endDate.toISOString());
+    RNCalendarEvents.saveEvent(this.props.meetingObj.title, {
+      location: this.props.meetingObj.location,
+      notes: this.props.meetingObj.description,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
     })
     .then(id => {
-      console.log("DID THIS WORK?");
+      console.log("DID THIS WORK?", id);
     })
     .catch(error => {
       console.log("BRUH", error);
