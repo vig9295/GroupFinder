@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import com.facebook.react.ReactApplication;
+import com.calendarevents.CalendarEventsPackage;
 import im.shimo.react.cookie.CookieManagerPackage;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
@@ -11,8 +12,6 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import com.RNFetchBlob.RNFetchBlobPackage;
-import com.rnfs.RNFSPackage;
-
 
 
 import com.filepicker.FilePickerPackage;
@@ -32,11 +31,10 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new CalendarEventsPackage(),
             new CookieManagerPackage(),
             new FilePickerPackage(),
-              new RNFetchBlobPackage(),
-              new RNFSPackage()
-
+              new RNFetchBlobPackage()
       );
     }
   };

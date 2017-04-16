@@ -22,11 +22,16 @@ import Cookie from 'react-native-cookie';
 
 var width = Dimensions.get('window').width;
 
+function validateEmail(email) {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+}
+
 export default class LoginScreen extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { error: '', name: '', username: '', password: '' };
+    this.state = { error: '', name: '', username: '', password: '', location: '', email: '' };
   }
 
   register() {
@@ -34,6 +39,14 @@ export default class LoginScreen extends Component {
     formData.append('name', this.state.name);
     formData.append('username', this.state.username);
     formData.append('password', this.state.password);
+    formData.append('email', this.state.email);
+    formData.append('location', this.state.location);
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    flag = re.test(this.state.email)
+    if (!flag)  {
+      this.setState({error: "Please enter a valid email"});
+      return
+    }
     return fetch('https://group-finder.herokuapp.com/register', 
         {
           method: 'POST',
@@ -59,12 +72,22 @@ export default class LoginScreen extends Component {
         <TextInput
           style={{height: 50, width: width * .9}}
           placeholder="Name"
-          onChangeText={(text) => this.setState({ name: text })}
+          onChangeText={(text) => this.setState({ name: text, error: '' })}
         />
         <TextInput
           style={{height: 50, width: width * .9}}
           placeholder="Username"
           onChangeText={(text) => this.setState({ username: text, error: '' })}
+        />
+        <TextInput
+          style={{height: 50, width: width * .9}}
+          placeholder="Email"
+          onChangeText={(text) => this.setState({ email: text, error: '' })}
+        />
+        <TextInput
+          style={{height: 50, width: width * .9}}
+          placeholder="Location"
+          onChangeText={(text) => this.setState({ location: text, error: '' })}
         />
         <TextInput
           style={{height: 50, width: width * .9, marginBottom: 50}}

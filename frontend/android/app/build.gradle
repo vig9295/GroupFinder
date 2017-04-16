@@ -126,9 +126,9 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-calendar-events')
     compile project(':react-native-fetch-blob')
     compile project(':react-native-cookie')
-    compile project(':react-native-fs')
     compile project(':react-native-file-picker')
     compile 'com.pusher:pusher-java-client:1.4.0'
     compile fileTree(dir: "libs", include: ["*.jar"])

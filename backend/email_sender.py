@@ -1,7 +1,7 @@
 import smtplib
 
 def send_mail_to_admin(msg):
-    toaddrs  = 'groupfindergatech@gmail.com@gmail.com'
+    toaddrs  = 'groupfindergatech@gmail.com'
     username = 'csjuniordesigngatech@gmail.com'
     password = 'groupFinder123'
     server = smtplib.SMTP('smtp.gmail.com:587')

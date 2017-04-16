@@ -27,24 +27,18 @@ import ActionButton from 'react-native-action-button';
 
 var width = Dimensions.get('window').width;
 
-export default class MeetingListScreen extends Component {
+export default class NotificationScreen extends Component {
 
   static contextTypes = {
       notifications: React.PropTypes.number
   };
 
-  constructor(props, context) {
-    super(props, context);
-    this.state = { error: '',
-      meetingsPartOf: [],
-      meetingsNotPartOf: [],
-      classMembers: [],
-      index: 0,
-      routes: [
-        { key: '1', title: 'Meetings' },
-        { key: '2', title: 'People' },
-      ]
-    };
+  constructor(props) {
+    super(props);
+    this.state = { username: '', reminders: [], joinRequests: [], index: 0, routes: [
+      { key: '1', title: 'Reminders' },
+      { key: '2', title: 'Join Requests' },
+    ]};
   }
 
   handleChangeTab(index) {
@@ -52,45 +46,30 @@ export default class MeetingListScreen extends Component {
   }
 
   componentDidMount() {
-    var formData = new FormData();
-    formData.append('memberID', this.props.username);
-    url = 'https://group-finder.herokuapp.com/class/' + this.props.classObj.classID + '/meetings';
-    fetch(url, {
-      method: 'POST',
-      body: formData
-    })
-    .then((response) => response.json())
-    .then((responseJson) => {
-      if(responseJson['success']) {
-        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        this.setState({
-          meetingsPartOf: ds.cloneWithRows(responseJson['data1']),
-          meetingsNotPartOf: ds.cloneWithRows(responseJson['data2'])
-        });
-      }
-      else {
-        this.setState({ error: responseJson['message'] });
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-    url = 'https://group-finder.herokuapp.com/class/' + this.props.classObj.classID + '/members';
-    fetch(url)
+    Cookie.get('hmm', 'username')
+    .then((cookie) => {
+      this.setState({ username: cookie});
+      fetch('https://group-finder.herokuapp.com/' + cookie + '/get_notifications',
+        {
+          method: 'GET',
+        }
+      )
       .then((response) => response.json())
       .then((responseJson) => {
         if(responseJson['success']) {
-          if(responseJson['data'].length > 0) {
-            var data = responseJson['data'];
-            classMembers = []
-            for (var i = 0; i < data.length; i++) {
-              if(data[i].memberID != this.props.username) {
-                classMembers.push(data[i]);
-              }
-            }
+          if(responseJson['reminders'].length > 0) {
             const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-            this.setState({ classMembers : ds.cloneWithRows(classMembers) });
+            this.setState({
+              reminders: ds.cloneWithRows(responseJson['reminders'])
+            });
           }
+          if(responseJson['requests'].length > 0) {
+            const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+            this.setState({
+              joinRequests: ds.cloneWithRows(responseJson['requests'])
+            });
+          }
+          console.log("BRUH", this.state.joinRequests);
         }
         else {
           this.setState({ error: responseJson['message'] });
@@ -98,7 +77,8 @@ export default class MeetingListScreen extends Component {
       })
       .catch((error) => {
         console.error(error);
-      });
+      })
+    });
   }
 
   render() {
@@ -114,105 +94,62 @@ export default class MeetingListScreen extends Component {
   }
 
   renderHeader(props) {
-      notificationText = "Alert (" + this.context.notifications + ")";
       return (
         <View>
           <NavigationBar
             style={styles.navbar}
-            title={'Meeting List'}
+            title={'Notifications'}
             height={44}
             titleColor={'#fff'}
             backgroundColor={'#004D40'}
             leftButtonTitle={'Back'}
             leftButtonTitleColor={'#fff'}
             onLeftButtonPress={this.onLeftButtonPress.bind(this)}
-            rightButtonTitle={notificationText}
-            rightButtonTitleColor={'#fff'}
-            onRightButtonPress={ this.onNotificationPress.bind(this)}
           />
           <TabBar {...props} style={styles.tabBar}/>
         </View>
       )
   }
 
-  report(user) {
-    var formData = new FormData();
-    formData.append('reporterID', this.props.username);
-    formData.append('reportedID', user.memberID);
-    formData.append('reason', "Default reason");
-    url = 'https://group-finder.herokuapp.com/send_report'
-    fetch(url,
-      {
-        method: 'POST',
-        body: formData
-      }
-    )
-    .then((response) => {
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-    console.log(user);
-  }
-
   renderScene({ route }) {
-    if (this.state.meetingsNotPartOf.length == 0) {
-      meetingsYouArePartOf = (
-        <TouchableHighlight onPress={this.onAddGroup.bind(this)}>
-          <Text style={styles.instructions}>You have no groups for this class. Press here to make one!</Text>
-        </TouchableHighlight>
+    let reminders = null
+    if (this.state.reminders.length == 0) {
+      reminders = (
+        <Text style={styles.instructions}>You have no reminders at this time!</Text>
       );
     } else {
-      meetingsYouArePartOf = (
-        <ListView style={styles.classlist}
-        dataSource={this.state.meetingsPartOf}
-        renderRow={(rowData) =>
-          <TouchableHighlight style={styles.classitem} onPress={() => this.onMeetingPress(rowData)}>
-            <Text style={styles.classtext}>{rowData['title']}</Text>
-          </TouchableHighlight>
-        } />
+      reminders = (
+        <ListView
+        dataSource={this.state.reminders}
+        renderRow={(rowData) => {
+          text = 'You have been reminded about ' + rowData['title'];
+          return (
+            <TouchableHighlight style={styles.classitem}>
+              <Text style={styles.classtext}>{text}</Text>
+            </TouchableHighlight>
+          );
+        }} />
       );
     }
 
-    if (this.state.meetingsNotPartOf.length == 0) {
-      meetingsNotPartOf = (
-        <TouchableHighlight onPress={this.onAddGroup.bind(this)}>
-          <Text style={styles.instructions}>You have no groups for this class. Press here to make one!</Text>
-        </TouchableHighlight>
-      );
-    } else {
-      meetingsNotPartOf = (
-        <ListView style={styles.classlist}
-        dataSource={this.state.meetingsNotPartOf}
-        renderRow={(rowData) =>
-          <TouchableHighlight style={styles.classitem} onPress={() => this.onMeetingNotPartOfPress(rowData)}>
-            <Text style={styles.classtext}>{rowData['title']}</Text>
-          </TouchableHighlight>
-        } />
-      );
-    }
+    let joinRequests = null
 
-    if (this.state.classMembers.length == 0) {
-      studentList = (
-         <Text style={styles.instructions}>You have no students in this class</Text>
+    if (this.state.joinRequests.length == 0) {
+      joinRequests = (
+         <Text style={styles.instructions}>You have no join requests at this time!</Text>
       );
     } else {
-      studentList = (
+      joinRequests = (
         <ListView style={styles.classlist}
-          dataSource={this.state.classMembers}
-          renderRow={(rowData) =>
-            <View>
-              <TouchableHighlight style={styles.classitem} onPress={() => this.onMemberPress(rowData)}>
-                <Text style={styles.classtext}>{rowData['name']}</Text>
+          dataSource={this.state.joinRequests}
+          renderRow={(rowData) => {
+            text = rowData['memberName'] + ' requests to join ' + rowData['meetingTitle']
+            return (
+              <TouchableHighlight style={styles.classitem}>
+                <Text style={styles.classtext}>{text}</Text>
               </TouchableHighlight>
-              <Button
-                style={{fontSize: 40}}
-                title="Report"
-                color="#00695C"
-                onPress={() => this.report(rowData)}
-              />
-            </View>
-          }
+            );
+          }}
         />
       );
     }
@@ -221,26 +158,16 @@ export default class MeetingListScreen extends Component {
       case '1':
         return (
           <View style={styles.container}>
-            <Text style={styles.titletext}>Your Meetings</Text>
-            { meetingsYouArePartOf }
-            <Text style={styles.titletext}>Available Meetings</Text>
-            { meetingsNotPartOf }
-            <ActionButton
-              buttonColor="rgba(231,76,60,1)"
-              onPress={() => { this.onAddGroup()}}
-            />
+            <Text style={styles.titletext}>Reminders</Text>
+            { reminders }
           </View>
         );
         break;
       case '2':
         return (
           <View style={styles.container}>
-            <Text style={styles.titletext}>Class Members</Text>
-            { studentList }
-            <ActionButton
-              buttonColor="rgba(231,76,60,1)"
-              onPress={() => { this.onAddGroup()}}
-            />
+            <Text style={styles.titletext}>Join Requests</Text>
+            { joinRequests }
           </View>
         );
         break;
@@ -388,4 +315,4 @@ const styles = StyleSheet.create({
   },
 });
 
-AppRegistry.registerComponent('MeetingListScreen', () => MeetingListScreen);
+AppRegistry.registerComponent('NotificationScreen', () => NotificationScreen);

@@ -39,7 +39,6 @@ export default class ChatScreen extends Component {
       encrypted: true
     });
     this.chatRoom = this.pusher.subscribe(this.props.chatID);
-    this.state.rendered = false;
   }
 
   componentDidMount() {

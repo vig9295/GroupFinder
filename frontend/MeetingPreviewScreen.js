@@ -32,52 +32,13 @@ export default class MeetingScreen extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { error: '', chatID: '', data: [] };
-    var formData = new FormData();
-    formData.append('meetingID', this.props.meetingObj.meetingID);
-    fetch('https://group-finder.herokuapp.com/' + this.props.meetingObj.meetingID + '/get_documents',
-      {
-        method: 'GET'
-      }
-    )
-    .then((response) => response.json())
-    .then((responseJson) => {
-      if(responseJson['success']) {
-        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        this.setState({
-          data: ds.cloneWithRows(responseJson['data'])
-        });
-      }
-      else {
-        this.setState({ error: responseJson['message'] });
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-
-
+    this.state = {
+      error: ''
+    }
   }
 
   render() {
     let listData = null;
-    if (this.state.data.length == 0) {
-      listData = (
-        <TouchableHighlight>
-          <Text>Bruh</Text>
-        </TouchableHighlight>
-      )
-    } else {
-      listData = (
-        <ListView
-        dataSource={this.state.data}
-        renderRow={(rowData) =>
-          <TouchableHighlight onPress={() => this.onDownloadPress(rowData)}>
-            <Text style={styles.detailtext}>{rowData['name']}</Text>
-          </TouchableHighlight>
-        } />
-      )
-    }
 
     return (
       <View style={styles.container}>
@@ -129,7 +90,23 @@ export default class MeetingScreen extends Component {
   }
 
   requestToJoin() {
-    //TODO
+    var formData = new FormData();
+    formData.append('meetingID', this.props.meetingObj.meetingID);
+    formData.append('memberID', this.props.username);
+    url = 'http://128.61.30.92:5000/request_to_join_meeting'
+    fetch(url,
+      {
+        method: 'POST',
+        body: formData
+      }
+    )
+    .then((response) => response.json())
+    .then((responseJson) => {
+      this.setState({ error: responseJson['message'] });
+    })
+    .catch((error) => {
+      console.error(error);
+    });
   }
 }
 

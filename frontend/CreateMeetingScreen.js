@@ -17,7 +17,7 @@ import {
   TouchableHighlight,
   Navigator,
 } from 'react-native';
-import { Card, CheckboxGroup } from 'react-native-material-design'; 
+import { Card, CheckboxGroup } from 'react-native-material-design';
 import Cookie from 'react-native-cookie';
 import NavigationBar from 'react-native-navigation-bar';
 import DatePicker from 'react-native-datepicker';
@@ -48,7 +48,7 @@ export default class CreateMeetingScreen extends Component {
           classMembers = []
           for (var i = 0; i < data.length; i++) {
             if(data[i].memberID != this.props.username) {
-              classMembers.push({ 
+              classMembers.push({
                 value: data[i]['memberID'],
                 label: data[i]['name']
               });
@@ -91,8 +91,8 @@ export default class CreateMeetingScreen extends Component {
     members = this.state.members;
     members.push(this.props.username);
     formData.append('memberList', JSON.stringify(members));
-    url = 'http://128.61.61.119:5000/create_meetings'
-    fetch(url, 
+    url = 'https://group-finder.herokuapp.com/create_meetings'
+    fetch(url,
       {
         method: 'POST',
         body: formData
@@ -111,7 +111,7 @@ export default class CreateMeetingScreen extends Component {
     });
   }
 
-  render() { 
+  render() {
     inviteeSelection = null;
     if (this.state.showMembers) {
       return (
@@ -134,7 +134,7 @@ export default class CreateMeetingScreen extends Component {
     }
     return (
       <View style={styles.container}>
-        <NavigationBar 
+        <NavigationBar
           style={styles.navbar}
           title={'Create Meeting'}
           height={44}

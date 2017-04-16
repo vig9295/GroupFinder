@@ -13,6 +13,7 @@ import {
   Button,
   Image,
   ListView,
+  ScrollView,
   View,
   Dimensions,
   Navigator,
@@ -24,11 +25,19 @@ import NavigationBar from 'react-native-navigation-bar';
 import EStyleSheet from 'react-native-extended-stylesheet';
 import { FilePickerManager } from 'NativeModules';
 import RNFetchBlob from 'react-native-fetch-blob';
+import ActionButton from 'react-native-action-button';
+import Icon from 'react-native-vector-icons/Ionicons';
+import RNCalendarEvents from 'react-native-calendar-events'
+
 
 
 var width = Dimensions.get('window').width;
 
 export default class MeetingScreen extends Component {
+
+  static contextTypes = {
+      notifications: React.PropTypes.number
+  };
 
   constructor(props) {
     super(props);
@@ -64,7 +73,7 @@ export default class MeetingScreen extends Component {
     if (this.state.data.length == 0) {
       listData = (
         <TouchableHighlight>
-          <Text>Bruh</Text>
+          <Text>No notifications!</Text>
         </TouchableHighlight>
       )
     } else {
@@ -79,6 +88,8 @@ export default class MeetingScreen extends Component {
       )
     }
 
+    notificationText = "Alert (" + this.context.notifications + ")";
+    icon = (<Icon name="ios-add" style={styles.actionButtonIcon} />);
     return (
       <View style={styles.container}>
         <NavigationBar
@@ -90,11 +101,11 @@ export default class MeetingScreen extends Component {
           leftButtonTitle={'Back'}
           leftButtonTitleColor={'#fff'}
           onLeftButtonPress={this.onLeftButtonPress.bind(this)}
-          rightButtonTitle={'Chat'}
+          rightButtonTitle={notificationText}
           rightButtonTitleColor={'#fff'}
-          onRightButtonPress={this.onRightButtonPress.bind(this)}
+          onRightButtonPress={ this.onNotificationPress.bind(this)}
         />
-
+        <ScrollView>
         <View style={styles.meetingcontainer}>
           <Text style={styles.navmarginhelper}></Text>
           <View style={styles.sectioncontainer}>
@@ -118,24 +129,39 @@ export default class MeetingScreen extends Component {
             <Text style={styles.detailtitle}>Documents</Text>
           </View>
           <Text />
-          <View style={styles.simplebutton}>
+          <View style={styles.simplebuttoncontainer}>
             <Button
               style={styles.simplebutton}
               title="Upload Documents"
               onPress={this.onUploadPress.bind(this)}
             />
+            <Button
+              style={styles.simplebutton}
+              title="Add to Calendar"
+              color="#00695C"
+              onPress={this.onCalendarPress.bind(this)}
+            />
           </View>
         </View>
-
+        </ScrollView>
+        <ActionButton
+          icon = {icon}
+          buttonColor="rgba(231,76,60,1)"
+          onPress={() => { this.onChatButtonPress()}}
+        />
       </View>
     );
+  }
+
+  onNotificationPress() {
+    this.props.navigator.push({ screen: 'NotificationScreen' });
   }
 
   onLeftButtonPress() {
     this.props.navigator.pop();
   }
 
-  onRightButtonPress() {
+  onChatButtonPress() {
     this.props.navigator.push({
       screen: 'ChatScreen',
       passProps: {
@@ -177,6 +203,28 @@ export default class MeetingScreen extends Component {
       // error handling
     })
 
+  }
+
+  onCalendarPress() {
+    var startDate = new Date(this.props.meetingObj.dateJson);
+    Date.prototype.addHours= function(h){
+      this.setHours(this.getHours()+h);
+      return this;
+    }
+    var endDate = startDate.addHours(1); 
+    console.log("DUUUsfasdg", endDate.toISOString());
+    RNCalendarEvents.saveEvent(this.props.meetingObj.title, {
+      location: this.props.meetingObj.location,
+      notes: this.props.meetingObj.description,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    })
+    .then(id => {
+      console.log("DID THIS WORK?", id);
+    })
+    .catch(error => {
+      console.log("BRUH", error);
+    });
   }
 
 
@@ -239,10 +287,14 @@ export default class MeetingScreen extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    //flex: 1,
     justifyContent: 'center',
     backgroundColor: '#F5FCFF',
     flexDirection: 'column',
+  },
+  actionButtonIcon: {
+    fontSize: 20,
+    height: 22,
+    color: 'white',
   },
   sectioncontainer: {
     paddingLeft: 24,
