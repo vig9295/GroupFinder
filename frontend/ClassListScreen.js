@@ -118,8 +118,7 @@ export default class ClassListScreen extends Component {
         ref={(ref) => this._drawer = ref}
         tapToClose={true}
         openDrawerOffset={0.2}
-        panCloseMask={0.2}
-        closedDrawerOffset={-3}>
+        panCloseMask={0.2}>
         <View style={styles.container}>
           <NavigationBar 
             style={styles.navbar}

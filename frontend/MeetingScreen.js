@@ -26,7 +26,6 @@ import EStyleSheet from 'react-native-extended-stylesheet';
 import { FilePickerManager } from 'NativeModules';
 import RNFetchBlob from 'react-native-fetch-blob';
 import ActionButton from 'react-native-action-button';
-import Icon from 'react-native-vector-icons/Ionicons';
 import RNCalendarEvents from 'react-native-calendar-events'
 
 
@@ -35,9 +34,6 @@ var width = Dimensions.get('window').width;
 
 export default class MeetingScreen extends Component {
 
-  static contextTypes = {
-      notifications: React.PropTypes.number
-  };
 
   constructor(props) {
     super(props);
@@ -88,8 +84,6 @@ export default class MeetingScreen extends Component {
       )
     }
 
-    notificationText = "Alert (" + this.context.notifications + ")";
-    icon = (<Icon name="ios-add" style={styles.actionButtonIcon} />);
     return (
       <View style={styles.container}>
         <NavigationBar
@@ -101,11 +95,10 @@ export default class MeetingScreen extends Component {
           leftButtonTitle={'Back'}
           leftButtonTitleColor={'#fff'}
           onLeftButtonPress={this.onLeftButtonPress.bind(this)}
-          rightButtonTitle={notificationText}
+          rightButtonTitle={'Chat'}
           rightButtonTitleColor={'#fff'}
-          onRightButtonPress={ this.onNotificationPress.bind(this)}
+          onRightButtonPress={ this.onChatButtonPress.bind(this)}
         />
-        <ScrollView>
         <View style={styles.meetingcontainer}>
           <Text style={styles.navmarginhelper}></Text>
           <View style={styles.sectioncontainer}>
@@ -143,18 +136,8 @@ export default class MeetingScreen extends Component {
             />
           </View>
         </View>
-        </ScrollView>
-        <ActionButton
-          icon = {icon}
-          buttonColor="rgba(231,76,60,1)"
-          onPress={() => { this.onChatButtonPress()}}
-        />
       </View>
     );
-  }
-
-  onNotificationPress() {
-    this.props.navigator.push({ screen: 'NotificationScreen' });
   }
 
   onLeftButtonPress() {
@@ -174,7 +157,6 @@ export default class MeetingScreen extends Component {
 
 
   onDownloadPress(documentData) {
-
     let dirs = RNFetchBlob.fs.dirs;
     console.log(dirs.DownloadDir);
     RNFetchBlob
@@ -199,7 +181,6 @@ export default class MeetingScreen extends Component {
     })
     .catch((errorMessage, statusCode) => {
       console.log(errorMessage);
-
       // error handling
     })
 
@@ -212,7 +193,6 @@ export default class MeetingScreen extends Component {
       return this;
     }
     var endDate = startDate.addHours(1); 
-    console.log("DUUUsfasdg", endDate.toISOString());
     RNCalendarEvents.saveEvent(this.props.meetingObj.title, {
       location: this.props.meetingObj.location,
       notes: this.props.meetingObj.description,
@@ -220,10 +200,8 @@ export default class MeetingScreen extends Component {
       endDate: endDate.toISOString(),
     })
     .then(id => {
-      console.log("DID THIS WORK?", id);
     })
     .catch(error => {
-      console.log("BRUH", error);
     });
   }
 

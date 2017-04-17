@@ -93,7 +93,7 @@ export default class MeetingScreen extends Component {
     var formData = new FormData();
     formData.append('meetingID', this.props.meetingObj.meetingID);
     formData.append('memberID', this.props.username);
-    url = 'http://128.61.30.92:5000/request_to_join_meeting'
+    url = 'https://group-finder.herokuapp.com/request_to_join_meeting'
     fetch(url,
       {
         method: 'POST',
