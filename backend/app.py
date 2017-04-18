@@ -336,6 +336,7 @@ def send_reminders(meetingID):
 def acknowledge_reminder():
 	memberID = request.form['memberID']
 	meetingID = request.form['meetingID']
+	print memberID, meetingID
 	return jsonify (
 		reminder.acknowledge_reminder(memberID, meetingID)
 	)

@@ -38,6 +38,7 @@ export default class MeetingListScreen extends Component {
     this.state = { error: '',
       meetingsPartOf: [],
       meetingsNotPartOf: [],
+      reported: [],
       classMembers: [],
       index: 0,
       routes: [
@@ -49,6 +50,32 @@ export default class MeetingListScreen extends Component {
 
   handleChangeTab(index) {
     this.setState({ index });
+  }
+
+  fetchCallback() {
+    var formData = new FormData();
+    formData.append('memberID', this.props.username);
+    url = 'https://group-finder.herokuapp.com/class/' + this.props.classObj.classID + '/meetings';
+    fetch(url, {
+      method: 'POST',
+      body: formData
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+      if(responseJson['success']) {
+        const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        this.setState({
+          meetingsPartOf: ds.cloneWithRows(responseJson['data1']),
+          meetingsNotPartOf: ds.cloneWithRows(responseJson['data2'])
+        });
+      }
+      else {
+        this.setState({ error: responseJson['message'] });
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
   }
 
   componentDidMount() {
@@ -148,11 +175,22 @@ export default class MeetingListScreen extends Component {
       }
     )
     .then((response) => {
+      reportList = this.state.reported;
+      reportList.push(user.memberID);
+      this.setState({reported: reportList});
+
+      //NOTE: The below code is incredibly hacky but is present to force a re-render
+      //For some reason the list view is not automatically updated with state update
+      //to reportList. Please ignore below and avoid at all costs in the future.
+
+      classMembers = this.state.classMembers;
+      this.setState({ classMembers : [] });
+      this.setState({ classMembers : classMembers });
+
     })
     .catch((error) => {
       console.error(error);
     });
-    console.log(user);
   }
 
   renderScene({ route }) {
@@ -205,12 +243,16 @@ export default class MeetingListScreen extends Component {
               <TouchableHighlight style={styles.classitem} onPress={() => this.onMemberPress(rowData)}>
                 <Text style={styles.classtext}>{rowData['name']}</Text>
               </TouchableHighlight>
-              <Button
-                style={{fontSize: 40}}
-                title="Report"
-                color="#00695C"
-                onPress={() => this.report(rowData)}
-              />
+              {this.state.reported.indexOf(rowData['memberID']) >= 0 && 
+                <Text style={{textAlign:'center', fontSize:20 }}> {'User reported'} </Text>
+              }
+              {this.state.reported.indexOf(rowData['memberID']) < 0 && 
+                <Button
+                  style={{fontSize: 40}}
+                  title="Report"
+                  color="#009B8F"
+                  onPress={() => this.report(rowData)}/>
+              }
             </View>
           }
         />
@@ -312,7 +354,8 @@ export default class MeetingListScreen extends Component {
       screen: 'CreateMeetingScreen',
       passProps: {
         username: this.props.username,
-        classID: this.props.classObj.classID
+        classID: this.props.classObj.classID,
+        callback: this.fetchCallback.bind(this)
       }
     });
   }

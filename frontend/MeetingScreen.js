@@ -29,7 +29,6 @@ import ActionButton from 'react-native-action-button';
 import RNCalendarEvents from 'react-native-calendar-events'
 
 
-
 var width = Dimensions.get('window').width;
 
 export default class MeetingScreen extends Component {
@@ -85,7 +84,7 @@ export default class MeetingScreen extends Component {
     }
 
     return (
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         <NavigationBar
           style={styles.navbar}
           title={this.props.meetingObj.title}
@@ -120,6 +119,7 @@ export default class MeetingScreen extends Component {
           <View style={styles.sectioncontainer}>
             { listData }
             <Text style={styles.detailtitle}>Documents</Text>
+            <Text> { this.state.error } </Text>
           </View>
           <Text />
           <View style={styles.simplebuttoncontainer}>
@@ -136,7 +136,7 @@ export default class MeetingScreen extends Component {
             />
           </View>
         </View>
-      </View>
+      </ScrollView>
     );
   }
 
@@ -157,33 +157,26 @@ export default class MeetingScreen extends Component {
 
 
   onDownloadPress(documentData) {
-    let dirs = RNFetchBlob.fs.dirs;
-    console.log(dirs.DownloadDir);
+    console.log(documentData);
     RNFetchBlob
     .config({
-      // add this option that makes response data to be stored as a file,
-      // this is much more performant.
-      path : '/storage/emulated/0/DCIM/Camera/sprint3-demo.jpg'
-
-
+      path : documentData.path
     })
     .fetch('GET', 'https://content.dropboxapi.com/2/files/download', {
       Authorization : 'Bearer nulQVf3lvTcAAAAAAAACZkhOkppiIWpAX6t1vFMd2S31fjm9nnXalrogOljJwmol',
       'Dropbox-API-Arg': JSON.stringify({
         path : documentData.path,
-        mode : 'add',
-        autorename : true,
       }),
     })
     .then((res) => {
       // the temp file path
+      console.log(res);
       console.log("Download complete")
     })
     .catch((errorMessage, statusCode) => {
       console.log(errorMessage);
       // error handling
     })
-
   }
 
   onCalendarPress() {
@@ -208,8 +201,6 @@ export default class MeetingScreen extends Component {
 
   onUploadPress() {
     FilePickerManager.showFilePicker(null, (response) => {
-      console.log('Response = ', response);
-
       if (response.didCancel) {
         console.log('User cancelled file picker');
       }
@@ -230,7 +221,6 @@ export default class MeetingScreen extends Component {
         }, RNFetchBlob.wrap(response.path))
         .then((res) => {
           var responseData = res.json();
-          console.log(responseData);
           var newformData = new FormData();
           newformData.append('meetingID', this.props.meetingObj.meetingID);
           newformData.append('name', responseData.name);
@@ -244,7 +234,28 @@ export default class MeetingScreen extends Component {
           .then((response) => response.json())
           .then((responseJson) => {
             if(responseJson['success']) {
-
+              var formData = new FormData();
+              formData.append('meetingID', this.props.meetingObj.meetingID);
+              fetch('https://group-finder.herokuapp.com/' + this.props.meetingObj.meetingID + '/get_documents',
+                {
+                  method: 'GET'
+                }
+              )
+              .then((response) => response.json())
+              .then((responseJson) => {
+                if(responseJson['success']) {
+                  const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+                  this.setState({
+                    data: ds.cloneWithRows(responseJson['data'])
+                  });
+                }
+                else {
+                  this.setState({ error: responseJson['message'] });
+                }
+              })
+              .catch((error) => {
+                console.error(error);
+              });
             }
             else {
 
