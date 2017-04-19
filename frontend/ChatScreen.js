@@ -132,8 +132,6 @@ export default class ChatScreen extends Component {
           leftButtonTitle={'Back'}
           leftButtonTitleColor={'#fff'}
           onLeftButtonPress={this.onLeftButtonPress.bind(this)}
-          rightButtonTitle={'Menu'}
-          rightButtonTitleColor={'#fff'}
         />
       </View>
     );

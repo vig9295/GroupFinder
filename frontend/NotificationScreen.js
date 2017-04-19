@@ -69,7 +69,6 @@ export default class NotificationScreen extends Component {
               joinRequests: ds.cloneWithRows(responseJson['requests'])
             });
           }
-          console.log("BRUH", this.state.joinRequests);
         }
         else {
           this.setState({ error: responseJson['message'] });
@@ -111,6 +110,93 @@ export default class NotificationScreen extends Component {
       )
   }
 
+  acknowledgeReminder(row) {
+    var formData = new FormData();
+    formData.append('memberID', this.state.username);
+    formData.append('meetingID', row.meetingID);
+    url = 'https://group-finder.herokuapp.com/acknowledge_reminder';
+    fetch(url, {
+      method: 'POST',
+      body: formData
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+      if(responseJson['success']) {
+        fetch('https://group-finder.herokuapp.com/' + this.state.username + '/get_notifications',
+          {
+            method: 'GET',
+          }
+        )
+        .then((response) => response.json())
+        .then((responseJson) => {
+          if(responseJson['success']) {
+            if(responseJson['reminders'].length > 0) {
+              const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+              this.setState({
+                reminders: ds.cloneWithRows(responseJson['reminders'])
+              });
+            }
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
+  acknowledgeRequest(row, urlString) {
+    var formData = new FormData();
+    formData.append('memberID', row.memberID);
+    formData.append('meetingID', row.meetingID);
+    url = 'https://group-finder.herokuapp.com/' + urlString + '_meeting_request';
+    fetch(url, {
+      method: 'POST',
+      body: formData
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+      if(responseJson['success']) {
+        fetch('https://group-finder.herokuapp.com/' + this.state.username + '/get_notifications',
+          {
+            method: 'GET',
+          }
+        )
+        .then((response) => response.json())
+        .then((responseJson) => {
+          if(responseJson['success']) {
+            console.log(responseJson['requests']);
+            if(responseJson['requests'].length > 0) {
+              const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+              this.setState({
+                joinRequests: ds.cloneWithRows(responseJson['requests'])
+              });
+            } else {
+              this.setState({joinRequests: []});
+            }
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  }
+
+  declineRequest(row) {
+    this.acknowledgeRequest(row, 'ignore');
+  }
+
+  acceptRequest(row) {
+    this.acknowledgeRequest(row, 'accept');
+  }
+
   renderScene({ route }) {
     let reminders = null
     if (this.state.reminders.length == 0) {
@@ -124,9 +210,16 @@ export default class NotificationScreen extends Component {
         renderRow={(rowData) => {
           text = 'You have been reminded about ' + rowData['title'];
           return (
-            <TouchableHighlight style={styles.classitem}>
-              <Text style={styles.classtext}>{text}</Text>
-            </TouchableHighlight>
+            <View>
+              <TouchableHighlight style={styles.classitem} >
+                <Text style={styles.classtext}>{text}</Text>
+              </TouchableHighlight>
+              <Button
+                style={{fontSize: 40}}
+                title="Mark As Read"
+                color="#009B8F"
+                onPress={() => this.acknowledgeReminder(rowData)}/>
+            </View>
           );
         }} />
       );
@@ -145,9 +238,23 @@ export default class NotificationScreen extends Component {
           renderRow={(rowData) => {
             text = rowData['memberName'] + ' requests to join ' + rowData['meetingTitle']
             return (
+              <View>
               <TouchableHighlight style={styles.classitem}>
                 <Text style={styles.classtext}>{text}</Text>
               </TouchableHighlight>
+                <View style={{flexDirection:'row'}}>
+                  <Button
+                    style={{fontSize: 40}}
+                    title="Accept"
+                    color="#009B8F"
+                    onPress={() => this.acceptRequest(rowData)}/>
+                  <Button
+                    style={{fontSize: 40}}
+                    title="Decline"
+                    color="#FFA07A"
+                    onPress={() => this.declineRequest(rowData)}/>
+                </View>
+              </View>
             );
           }}
         />

@@ -103,6 +103,7 @@ export default class CreateMeetingScreen extends Component {
       if(!responseJson['success']) {
         this.setState({ error: responseJson['message'] });
       } else {
+        this.props.callback()
         this.props.navigator.pop()
       }
     })
