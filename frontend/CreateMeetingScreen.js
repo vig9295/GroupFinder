@@ -172,7 +172,6 @@ export default class CreateMeetingScreen extends Component {
           date={this.state.date}
           mode="datetime"
           placeholder="select date"
-          format="YYYY-MM-DD HH:MM"
           minDate={this.state.date}
           confirmBtnText="Confirm"
           cancelBtnText="Cancel"
@@ -189,7 +188,7 @@ export default class CreateMeetingScreen extends Component {
           }}
           onDateChange={(date) => {this.setState({date: date, error: ''})}}
         />
-        {this.state.showMembers.length > 0 &&
+        {this.state.classMembers.length > 0 &&
           <Button
             style={{fontSize: 40}}
             title="Add Members"

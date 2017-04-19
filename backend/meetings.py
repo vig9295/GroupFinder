@@ -18,6 +18,15 @@ def connect():
         port=url.port)
     return conn
 
+def dateConverter(dateJson):
+    try:
+        dateJson = dateJson.strip()
+        dateObj = datetime.strptime(dateJson, "%Y-%m-%d %H:%M")
+        dateStr = dateObj.strftime("%a %b %d %Y %H:%m")
+        return dateStr +  ":00 GMT-0400 (EDT)"
+    except:
+        return dateJson
+
 
 #-----------
 #FUNCTIONS
@@ -29,6 +38,7 @@ def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 def create_meetings(meetingID, classID, title, location, description, dateJson, memberID):
+    dateJson = dateConverter(dateJson)
     db = connect()
     #timestr = str(dateJson['year']) + '-' + str(dateJson['month']) + '-' + str(dateJson['day']) + ' ' + str(dateJson['hour']) + ':' + str(dateJson['minute'])
     with db.cursor() as cur:

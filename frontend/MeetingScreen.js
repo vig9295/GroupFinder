@@ -36,7 +36,7 @@ export default class MeetingScreen extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { error: '', chatID: '', data: [] };
+    this.state = { error: '', chatID: '', data: [], calendarStatus:'', downloadStatus: '' };
     var formData = new FormData();
     formData.append('meetingID', this.props.meetingObj.meetingID);
     fetch('https://group-finder.herokuapp.com/' + this.props.meetingObj.meetingID + '/get_documents',
@@ -105,7 +105,7 @@ export default class MeetingScreen extends Component {
             <Text style={styles.detailtitle}>Class</Text>
           </View>
           <View style={styles.sectioncontainer}>
-            <Text style={styles.detailtext}>{this.props.meetingObj.dateJson}</Text>
+            <Text style={styles.detailtext}>{this.props.meetingObj.dateJson.slice(0, 21)}</Text>
             <Text style={styles.detailtitle}>Date</Text>
           </View>
           <View style={styles.sectioncontainer}>
@@ -119,7 +119,7 @@ export default class MeetingScreen extends Component {
           <View style={styles.sectioncontainer}>
             { listData }
             <Text style={styles.detailtitle}>Documents</Text>
-            <Text> { this.state.error } </Text>
+            <Text style={styles.instructions}> { this.state.downloadStatus } </Text>
           </View>
           <Text />
           <View style={styles.simplebuttoncontainer}>
@@ -134,6 +134,7 @@ export default class MeetingScreen extends Component {
               color="#00695C"
               onPress={this.onCalendarPress.bind(this)}
             />
+            <Text style={styles.instructions}> { this.state.calendarStatus } </Text>
           </View>
         </View>
       </View>
@@ -170,31 +171,35 @@ export default class MeetingScreen extends Component {
     })
     .then((res) => {
       // the temp file path
-      console.log(res);
-      console.log("Download complete")
+      this.setState({downloadStatus: "Download Complete"});
     })
     .catch((errorMessage, statusCode) => {
-      console.log(errorMessage);
-      // error handling
+      console.error(errorMessage);
+      this.setState({downloadStatus: "Download Failed"});
     })
   }
 
   onCalendarPress() {
+    console.log(this.props.meetingObj.dateJson);
     var startDate = new Date(this.props.meetingObj.dateJson);
+    console.log(startDate.toISOString())
     Date.prototype.addHours= function(h){
       this.setHours(this.getHours()+h);
       return this;
     }
     var endDate = startDate.addHours(1);
+
     RNCalendarEvents.saveEvent(this.props.meetingObj.title, {
       location: this.props.meetingObj.location,
       notes: this.props.meetingObj.description,
       startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
+      endDate: startDate.toISOString(),
     })
     .then(id => {
+      this.setState({calendarStatus: 'Added to calendar!'})
     })
     .catch(error => {
+      this.setState({calendarStatus: 'Could not add'})
     });
   }
 
