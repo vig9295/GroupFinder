@@ -84,7 +84,7 @@ export default class MeetingScreen extends Component {
     }
 
     return (
-      <ScrollView style={styles.container}>
+      <View style={styles.container}>
         <NavigationBar
           style={styles.navbar}
           title={this.props.meetingObj.title}
@@ -136,7 +136,7 @@ export default class MeetingScreen extends Component {
             />
           </View>
         </View>
-      </ScrollView>
+      </View>
     );
   }
 
@@ -185,7 +185,7 @@ export default class MeetingScreen extends Component {
       this.setHours(this.getHours()+h);
       return this;
     }
-    var endDate = startDate.addHours(1); 
+    var endDate = startDate.addHours(1);
     RNCalendarEvents.saveEvent(this.props.meetingObj.title, {
       location: this.props.meetingObj.location,
       notes: this.props.meetingObj.description,

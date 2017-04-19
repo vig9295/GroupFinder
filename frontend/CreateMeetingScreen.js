@@ -189,11 +189,12 @@ export default class CreateMeetingScreen extends Component {
           }}
           onDateChange={(date) => {this.setState({date: date, error: ''})}}
         />
-        <Button
-          style={{fontSize: 40}}
-          title="Add Members"
-          onPress={() => this.setState({showMembers: true})}
-        />
+        {this.state.showMembers.length > 0 &&
+          <Button
+            style={{fontSize: 40}}
+            title="Add Members"
+            onPress={() => this.setState({showMembers: true})}/>
+        }
         <Text> { this.state.error } </Text>
       </View>
     );

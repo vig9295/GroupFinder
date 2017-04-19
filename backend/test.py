@@ -13,9 +13,9 @@ import dropbox
 # print '3. Copy the authorization code.'
 # code = raw_input("Enter the authorization code here: ").strip()
 client = dropbox.client.DropboxClient("nulQVf3lvTcAAAAAAAACZkhOkppiIWpAX6t1vFMd2S31fjm9nnXalrogOljJwmol")
-print 'linked account: ', client.account_info()
+#print 'linked account: ', client.account_info()
 
-f, metadata = client.get_file_and_metadata('/storage/emulated/0/dcim/camera/img_20170311_222032.jpg')
+f, metadata = client.get_file_and_metadata('/storage/emulated/0/dcim/camera/20170416_184217.jpg')
 out = open('stuff.jpg', 'wb')
 out.write(f.read())
 out.close()
